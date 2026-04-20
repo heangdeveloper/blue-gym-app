@@ -1,0 +1,30 @@
+"use client"
+
+import { useRouter } from "next/navigation";
+
+import {
+    Plus
+} from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+
+export default function Page() {
+    const router = useRouter();
+    return (
+        <>
+            <div>
+                <div className="mb-6">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                        <div className="space-y-1">
+                            <h2 className="text-2xl font-bold tracking-tight">Customers</h2>
+                            <p className="mt-1 text-sm text-muted-foreground">View and manage your customer base.</p>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                            <Button onClick={() => router.push("/customers/create")}><Plus className="h-5 w-5"/>Add Customer</Button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </>
+    );
+}
