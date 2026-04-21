@@ -25,7 +25,7 @@ import {
 export default function Page() {
     const roles = [
         { label: "Admin", value: "admin" },
-        { label: "Staff", value: "staff" }
+        { label: "Cashier", value: "cashier" }
     ]
 
     return (
@@ -103,13 +103,19 @@ export default function Page() {
                                 <Field>
                                     <FieldLabel htmlFor="input-field-username">Permissions</FieldLabel>
                                     <div className="grid gap-4 sm:grid-cols-2">
+                                        <div className="">
+                                            <h4 className="text-sm font-medium text-muted-foreground">Users</h4>
+                                            
+                                        </div>
+                                        
+
                                         <div className="space-y-2">
                                             <h4 className="text-sm font-medium text-muted-foreground">Users</h4>
                                             <div className="flex items-center gap-2 space-y-0">
                                                 <FieldGroup>
                                                     <Field orientation="horizontal">
                                                         <Checkbox id="manage-users"/>
-                                                        <FieldLabel htmlFor="manage-users">Manage Users</FieldLabel>
+                                                        <FieldLabel htmlFor="manage-users">View</FieldLabel>
                                                     </Field>
                                                 </FieldGroup>
                                             </div>
@@ -117,7 +123,23 @@ export default function Page() {
                                                 <FieldGroup>
                                                     <Field orientation="horizontal">
                                                         <Checkbox id="view-users"/>
-                                                        <FieldLabel htmlFor="view-users">View Users</FieldLabel>
+                                                        <FieldLabel htmlFor="view-users">Create</FieldLabel>
+                                                    </Field>
+                                                </FieldGroup>
+                                            </div>
+                                            <div className="flex items-center gap-2 space-y-0">
+                                                <FieldGroup>
+                                                    <Field orientation="horizontal">
+                                                        <Checkbox id="view-users"/>
+                                                        <FieldLabel htmlFor="view-users">Update</FieldLabel>
+                                                    </Field>
+                                                </FieldGroup>
+                                            </div>
+                                            <div className="flex items-center gap-2 space-y-0">
+                                                <FieldGroup>
+                                                    <Field orientation="horizontal">
+                                                        <Checkbox id="view-users"/>
+                                                        <FieldLabel htmlFor="view-users">Delete</FieldLabel>
                                                     </Field>
                                                 </FieldGroup>
                                             </div>

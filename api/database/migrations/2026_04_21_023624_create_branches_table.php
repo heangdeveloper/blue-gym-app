@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('classes', function (Blueprint $table) {
+        Schema::create('branches', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger("branch_id");
-            $table->unsignedBigInteger("trainer_id");
             $table->string("name");
-            $table->date("schedule");
-            $table->integer("capacity");
+            $table->string("location");
+            $table->string("phone");
+            $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();
         });
     }
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('classes');
+        Schema::dropIfExists('branches');
     }
 };

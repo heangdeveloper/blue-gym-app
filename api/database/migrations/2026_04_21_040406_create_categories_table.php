@@ -11,14 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('trainers', function (Blueprint $table) {
+        Schema::create('categories', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger("branch_id");
             $table->string("name");
-            $table->string("specialty")->nullable();
-            $table->string("phone")->nullable();
             $table->enum('status', ['active', 'inactive'])->default('active');
-            $table->foreign('branch_id')->references('id')->on('branchs');
             $table->timestamps();
         });
     }
@@ -28,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('trainers');
+        Schema::dropIfExists('categories');
     }
 };

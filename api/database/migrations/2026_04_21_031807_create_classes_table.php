@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('branchs', function (Blueprint $table) {
+        Schema::create('classes', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('branch_id')->constrained('branches')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('trainer_id')->constrained('trainers')->cascadeOnDelete()->cascadeOnUpdate();
             $table->string("name");
-            $table->string("location");
-            $table->string("phone");
-            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->date("schedule");
+            $table->integer("capacity");
             $table->timestamps();
         });
     }
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('branchs');
+        Schema::dropIfExists('classes');
     }
 };

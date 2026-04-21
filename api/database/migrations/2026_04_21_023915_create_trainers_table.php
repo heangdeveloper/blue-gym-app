@@ -11,23 +11,22 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('customers', function (Blueprint $table) {
+        Schema::create('trainers', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger("user_id");
+            $table->foreignId('branch_id')->constrained('branches')->cascadeOnDelete()->cascadeOnUpdate();
             $table->string("name");
-            $table->string("phone");
-            $table->text("photo")->nullable();
-            $table->enum("gender", ["m", "f"])->default("m");
-            $table->date("joining_date");
+            $table->string("specialty")->nullable();
+            $table->string("phone")->nullable();
+            $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();
         });
     }
 
     /**
-     * Reverse the migrations.ne
+     * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('customers');
+        Schema::dropIfExists('trainers');
     }
 };
