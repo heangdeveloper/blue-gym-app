@@ -14,6 +14,14 @@ class TrainerResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id,
+            'branch_id' => $this->branch_id,
+            'name' => $this->name,
+            'specialty' => $this->specialty,
+            'phone' => $this->phone,
+            'status' => $this->status,
+            'created_at' => $this->created_at,
+        ];
     }
 }

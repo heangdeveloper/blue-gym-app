@@ -3,7 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Trainer;
 use Illuminate\Http\Request;
+use App\Http\Resources\TrainerResource;
+use App\Http\Requests\Trainer\StoreTrainerRequest;
+use App\Http\Requests\Trainer\UpdateTrainerRequest;
 
 class TrainerController extends Controller
 {
@@ -12,38 +16,50 @@ class TrainerController extends Controller
      */
     public function index()
     {
-        //
+        return TrainerResource::collection(
+            Trainer::with('branch')->latest()->paginate(10)
+        );
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreTrainerRequest $request)
     {
-        //
+        $trainer = Trainer::create($request->validated());
+
+        return new TrainerResource($trainer->load('branch'));
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Trainer $trainer)
     {
-        //
+        return new TrainerResource(
+            $trainer->load('branch')
+        );
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateTrainerRequest $request, Trainer $trainer)
     {
-        //
+        $trainer->update($request->validated());
+
+        return new TrainerResource($trainer->load('branch'));
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Trainer $trainer)
     {
-        //
+        $trainer->delete();
+
+        return response()->json([
+            'message' => 'Trainer deleted successfully'
+        ]);
     }
 }

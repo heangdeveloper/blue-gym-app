@@ -12,7 +12,7 @@ class UpdateBranchRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,7 +23,10 @@ class UpdateBranchRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => 'sometimes|string|max:255',
+            'location' => 'sometimes|string|max:255',
+            'phone' => 'sometimes|string|max:255',
+            'status' => 'sometimes|in:active,inactive',
         ];
     }
 }

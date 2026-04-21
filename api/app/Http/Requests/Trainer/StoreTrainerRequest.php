@@ -12,7 +12,7 @@ class StoreTrainerRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,7 +23,10 @@ class StoreTrainerRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => 'required|string|max:255',
+            'specialty' => 'nullable|string',
+            'phone' => 'required|numeric|min:0',
+            'status' => 'required|in:active,inactive',
         ];
     }
 }

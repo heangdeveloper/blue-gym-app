@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string("name");
             $table->string("specialty")->nullable();
             $table->string("phone")->nullable();
+            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->foreign('branch_id')->references('id')->on('branchs');
             $table->timestamps();
         });
     }
