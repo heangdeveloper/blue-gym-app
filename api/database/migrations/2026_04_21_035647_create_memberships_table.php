@@ -13,23 +13,10 @@ return new class extends Migration
     {
         Schema::create('memberships', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')
-                ->constrained('users')
-                ->cascadeOnDelete()
-                ->cascadeOnUpdate();
-            $table->foreignId('trainer_id')
-                ->nullable()
-                ->constrained('trainers')
-                ->cascadeOnDelete()
-                ->cascadeOnUpdate();
-            $table->foreignId('package_id')
-                ->constrained('packages')
-                ->cascadeOnDelete()
-                ->cascadeOnUpdate();
-            $table->foreignId('payment_id')
-                ->constrained('payments')
-                ->cascadeOnDelete()
-                ->cascadeOnUpdate();
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('trainer_id')->nullable()->constrained('trainers')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('package_id')->constrained('packages')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('payment_id')->constrained('payments')->cascadeOnDelete()->cascadeOnUpdate();
             $table->string("name");
             $table->string("phone");
             $table->string('avatar', 2048)->default('default.png')->nullable();

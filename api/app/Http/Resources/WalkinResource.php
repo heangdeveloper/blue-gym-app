@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ClasseResource extends JsonResource
+class WalkinResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -22,14 +22,21 @@ class ClasseResource extends JsonResource
                 'name' => $this->branch?->name,
             ],
 
-            'trainer' => [
-                'id' => $this->trainer?->id,
-                'name' => $this->trainer?->name,
+            'package' => [
+                'id' => $this->package?->id,
+                'name' => $this->package?->name,
             ],
 
-            'name' => $this->name,
-            'schedule' => $this->schedule,
-            'capacity' => $this->capacity,
+            'product' => [
+                'id' => $this->product?->id,
+                'name' => $this->product?->name,
+            ],
+
+            'entry_time' => $this->entry_time,
+            'exit_time' => $this->exit_time,
+            'qty' => $this->qty,
+            'price' => $this->price,
+            'subtotal' => $this->subtotal,
 
             'created_at' => $this->created_at,
         ];

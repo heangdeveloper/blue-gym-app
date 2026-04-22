@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { Suspense } from "react";
 import type { Column, ColumnDef } from "@tanstack/react-table";
 import {
     CheckCircle,
@@ -28,6 +29,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
+import { Spinner } from "@/components/ui/spinner"
 import {
     Dialog,
     DialogContent,
@@ -372,9 +374,9 @@ export default function Page() {
                     </div>
                 </div>
                 <div className="relative w-full overflow-x-auto">
-                    <DataTable table={table}>
-                        <DataTableToolbar table={table} />
-                    </DataTable>
+                        <DataTable table={table}>
+                            <DataTableToolbar table={table} />
+                        </DataTable>
                 </div>
             </div>
             <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>

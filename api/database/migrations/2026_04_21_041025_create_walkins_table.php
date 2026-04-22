@@ -16,9 +16,9 @@ return new class extends Migration
             $table->foreignId('branch_id')->constrained('branches')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignId('package_id')->constrained('packages')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignId('product_id')->constrained('products')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->time("entry_time");
-            $table->time("exit_time")->nullable();
-            $table->integer("qty");
+            $table->time("entry_time")->nullable()->useCurrent(); // current time auto
+            $table->time("exit_time")->nullable(); // can null
+            $table->integer("qty")->default(0);
             $table->decimal("price", 8, 2);
             $table->decimal("subtotal", 8, 2);
             $table->timestamps();

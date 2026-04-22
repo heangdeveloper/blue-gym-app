@@ -7,6 +7,9 @@ use App\Http\Controllers\Api\PackageController;
 use App\Http\Controllers\Api\ClasseController;
 use App\Http\Controllers\Api\BranchController;
 use App\Http\Controllers\Api\TrainerController;
+use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\WalkinController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -17,4 +20,7 @@ Route::apiResources([
     'classes' => ClasseController::class,
     'branchs' => BranchController::class,
     'trainer' => TrainerController::class,
+    'categories' => CategoryController::class,
+    'products' => ProductController::class,
+    'walkins' => WalkinController::class,
 ]);

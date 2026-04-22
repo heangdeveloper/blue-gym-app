@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Classe;
+namespace App\Http\Requests\Product;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateClasseRequest extends FormRequest
+class UpdateProductRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,11 +23,13 @@ class UpdateClasseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'branch_id' => 'sometimes|required|exists:branches,id',
-            'trainer_id' => 'sometimes|required|exists:trainers,id',
+            'category_id' => 'sometimes|required|exists:categories,id',
             'name' => 'sometimes|required|string|max:255',
-            'schedule' => 'sometimes|required|date',
-            'capacity' => 'sometimes|required|integer|min:1',
+            'description' => 'nullable|string',
+            'cost_price' => 'sometimes|required|numeric|min:0',
+            'sell_price' => 'sometimes|required|numeric|min:0',
+            'stock_qty' => 'sometimes|required|integer|min:0',
+            'image' => 'nullable|string|max:2048',
         ];
     }
 }

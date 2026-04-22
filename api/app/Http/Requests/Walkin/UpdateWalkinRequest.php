@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Classe;
+namespace App\Http\Requests\Walkin;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateClasseRequest extends FormRequest
+class UpdateWalkinRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,10 +24,12 @@ class UpdateClasseRequest extends FormRequest
     {
         return [
             'branch_id' => 'sometimes|required|exists:branches,id',
-            'trainer_id' => 'sometimes|required|exists:trainers,id',
-            'name' => 'sometimes|required|string|max:255',
-            'schedule' => 'sometimes|required|date',
-            'capacity' => 'sometimes|required|integer|min:1',
+            'package_id' => 'sometimes|required|exists:packages,id',
+            'product_id' => 'sometimes|required|exists:products,id',
+            'entry_time' => 'sometimes|required|date_format:H:i',
+            'exit_time' => 'nullable|date_format:H:i',
+            'qty' => 'sometimes|required|integer|min:1',
+            'price' => 'sometimes|required|numeric|min:0',
         ];
     }
 }
