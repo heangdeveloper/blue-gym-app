@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Api\PackageController;
@@ -10,17 +9,23 @@ use App\Http\Controllers\Api\TrainerController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\WalkinController;
+use App\Http\Controllers\Api\AuthController;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+// Public routes
+Route::post('/login', [AuthController::class, 'login']);
 
-Route::apiResources([
-    'packages' => PackageController::class,
-    'classes' => ClasseController::class,
-    'branchs' => BranchController::class,
-    'trainer' => TrainerController::class,
-    'categories' => CategoryController::class,
-    'products' => ProductController::class,
-    'walkins' => WalkinController::class,
-]);
+// Protected routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/me', [AuthController::class, 'me']);
+    Route::apiResources([
+        'packages' => PackageController::class,
+        'classes' => ClasseController::class,
+        'branchs' => BranchController::class,
+        'trainer' => TrainerController::class,
+        'categories' => CategoryController::class,
+        'products' => ProductController::class,
+        'walkins' => WalkinController::class,
+    ]);
+});
+

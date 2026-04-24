@@ -1,10 +1,21 @@
 "use client"
 
+import * as React from "react";
+
 import { Dumbbell, LogOut, House, UserRound, Settings, User, Handbag, FileChartColumn, School, Users } from 'lucide-react';
 import Link from 'next/link'
-import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button"
-import clsx from "clsx";
+
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu"
 
 const menu = [
     {
@@ -34,7 +45,35 @@ const menu = [
 ]
 
 export default function Sidebar() {
-    const pathname = usePathname();
+    const router = useRouter();
+    const [user, setUser] = React.useState<any>(null);
+    const [loading, setLoading] = React.useState(true)
+
+    React.useEffect(() => {
+        async function fetchUser() {
+            const res = await fetch("/api/auth/me", {
+                credentials: "include",
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                setUser(data.user);
+            }
+        }
+        fetchUser()
+    }, [])
+
+    async function handleLogout() {
+        try {
+            await fetch("/api/auth/logout", {
+                method: "POST",
+                credentials: "include",
+            })
+            router.push("/login");
+        } catch(err) {
+            console.error("Failed to logout:", err);
+        }
+    }
     return (
         <>
             <aside className="fixed top-0 z-40 hidden h-screen flex-col bg-sidebar transition-all duration-300 ease-in-out lg:flex w-65">
@@ -47,7 +86,17 @@ export default function Sidebar() {
                         <p className="text-[10px] font-medium tracking-widest uppercase text-sidebar-foreground/40">Dashboard</p>
                     </div>
                 </Link>
-                <nav className="flex-1 space-y-3 px-3 py-4 overflow-y-auto">
+                <NavigationMenu>
+                    <div>
+                        <NavigationMenuItem>
+                            
+                        </NavigationMenuItem>
+                    </div>
+                </NavigationMenu>
+
+
+
+                {/* <nav className="flex-1 space-y-3 px-3 py-4 overflow-y-auto">
                     <ul>
                         {menu.map((section) => (
                             <li key={section.title} className="mb-3 last:mb-0">
@@ -87,17 +136,21 @@ export default function Sidebar() {
                             </li>
                         ))}
                     </ul>
-                </nav>
+                </nav> */}
                 <div className="border-t border-sidebar-border p-3">
                     <div className="flex items-center gap-2">
                         <Link href="/profile" className="flex flex-1 items-center gap-3 px-2 py-2 rounded-lg transition-colors">
-                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-sidebar-primary/80 to-sidebar-primary text-[11px] font-bold text-sidebar-primary-foreground">KH</div>
+                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-sidebar-primary/80 to-sidebar-primary text-[11px] font-bold text-sidebar-primary-foreground">{user?.name?.charAt(0) ?? "U"}</div>
                             <div className="flex flex-1 flex-col">
-                                <h6 className="text-sm font-medium text-sidebar-foreground">Kimheang S.</h6>
+                                <h6 className="text-sm font-medium text-sidebar-foreground">
+                                    {loading
+                                    ? "Loading..."
+                                    : user?.name ?? "Unknown User"}
+                                </h6>
                                 <p className="text-xs text-sidebar-foreground/50">Admin</p>
                             </div>
                         </Link>
-                        <Button variant="ghost" size="icon"><LogOut className="h-5 w-5"/></Button>
+                        <Button variant="ghost" size="icon" onClick={handleLogout}><LogOut className="h-5 w-5"/></Button>
                     </div>
                 </div>
             </aside>

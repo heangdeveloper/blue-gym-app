@@ -19,4 +19,4 @@ export async function POST(request: Request) {
     });
     const newItem = await res.json();
     return NextResponse.json(newItem, { status: 201 });
-}
+} 
