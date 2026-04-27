@@ -2,7 +2,9 @@ import {
     ShieldUser,
     FileSliders,
     Store,
-    User
+    User,
+    Dumbbell,
+    House
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react";
 
@@ -29,7 +31,7 @@ export const navigationItems: NavGroup[] = [
             items: [
                 {
                     label: "Dashboard",
-                    icon: ShieldUser,
+                    icon: House,
                     href: "/dashboard",
                 },
             ],
@@ -53,11 +55,15 @@ export const navigationItems: NavGroup[] = [
                     { label: "Product", href: "/product" },
                 ],
             },
-        ]
-    },
-    {
-    group: "Other",
-        items: [
+            {
+                label: "Gym",
+                icon: Dumbbell,
+                children: [
+                    { label: "Packages", href: "/packages" },
+                    { label: "Trainers", href: "/trainers" },
+                    { label: "Classes", href: "/classes" },
+                ],
+            },
             {
                 label: "Authentication",
                 icon: ShieldUser,
@@ -75,6 +81,6 @@ export const navigationItems: NavGroup[] = [
                     { label: "Expense", href: "/expense" },
                 ],
             },
-        ],
+        ]
     },
 ];

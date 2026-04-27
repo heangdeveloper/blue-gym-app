@@ -3,12 +3,12 @@
 import * as React from "react";
 import Link from 'next/link'
 import { useRouter } from "next/navigation";
-import { NavUser } from "@/components/dashboard/nav-user";
+import NavUser from "@/components/dashboard/nav-user";
 import { navigationItems } from "@/lib/navigation";
 
 import {
     Dumbbell,
-    ChevronRight
+    ChevronDown
 } from "lucide-react"
 import {
     Sidebar,
@@ -33,22 +33,6 @@ import {
 
 export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const router = useRouter();
-    const [user, setUser] = React.useState<any>(null);
-    const [loading, setLoading] = React.useState(true)
-
-    React.useEffect(() => {
-        async function fetchUser() {
-            const res = await fetch("/api/auth/me", {
-                credentials: "include",
-            });
-
-            if (res.ok) {
-                const data = await res.json();
-                setUser(data.user);
-            }
-        }
-        fetchUser()
-    }, [])
 
     async function handleLogout() {
         try {
@@ -65,7 +49,7 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
         <>
             <Sidebar collapsible="icon" {...props}>
                 <SidebarHeader className="p-0">
-                    <Link href="/dashboard" className="flex items-center px-12 gap-3">
+                    <Link href="/dashboard" className="flex items-center h-16 px-8 gap-3">
                         <div className="flex justify-center items-center shrink-0 w-8 h-8 rounded-lg bg-sidebar-primary">
                             <Dumbbell className="h-5 w-5 text-white"/>
                         </div>
@@ -75,32 +59,35 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
                         </div>
                     </Link>
                 </SidebarHeader>
-                <SidebarContent className="px-4">
+                <SidebarContent className="py-2.5">
                     {navigationItems.map((group, i) => (
-                        <SidebarGroup className="p-0 gap-0.5" key={i}>
-                            <SidebarGroupLabel className="py-2 pl-4 pr-0 text-xs font-bold uppercase">{group.group}</SidebarGroupLabel>
+                        <SidebarGroup className="p-0" key={i}>
+                            <SidebarGroupLabel className="pt-4 px-7 pb-1 text-[11px] font-medium uppercase">{group.group}</SidebarGroupLabel>
                             {group.items.map((item, j) => (
                                 <SidebarMenu key={j}>
                                     {item.children?.length ? (
-                                        <Collapsible>
+                                        <Collapsible
+                                            key={item.label}
+                                            className="group">
                                             <SidebarMenuItem>
                                                 <CollapsibleTrigger
                                                     render={
-                                                    <SidebarMenuButton className="py-1 px-4" tooltip={item.label}>
-                                                        {item.icon && <item.icon />}
-                                                        <span>{item.label}</span>
-                                                        <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                                                    </SidebarMenuButton>
+                                                        <SidebarMenuButton className="group w-full h-auto py-3 pl-8 pr-7 text-[13px] gap-4 [&>svg]:text-sidebar-foreground/50 [&>svg]:size-5 group-data-open:bg-sidebar-accent" tooltip={item.label}>
+                                                            {item.icon && <item.icon />}
+                                                            <span className="w-full text-[13px] font-normal">{item.label}</span>
+                                                            <ChevronDown className="transition-transform duration-200 group-data-open:rotate-180" />
+                                                        </SidebarMenuButton>
                                                     }
                                                 />
                                                 <CollapsibleContent>
-                                                    <SidebarMenuSub>
+                                                    <SidebarMenuSub className="m-0 p-0 gap-0 group-data-open:border-l-0">
                                                         {item.children.map((sub, k) => (
                                                             <SidebarMenuSubItem key={k}>
                                                                 <SidebarMenuSubButton
+                                                                    className="h-auto py-2 pr-4 pl-14"
                                                                     render={
                                                                         <Link href={sub.href}>
-                                                                            <span>{sub.label}</span>
+                                                                            <span className="w-full px-4 text-[13px] leading-5 text-sidebar-foreground/70">{sub.label}</span>
                                                                         </Link>
                                                                     }
                                                                 />
@@ -113,11 +100,11 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
                                     ) : (
                                     <SidebarMenuItem>
                                         <SidebarMenuSubButton
-                                            className="py-1 px-4"
+                                            className="w-full h-auto py-3 pl-8 pr-7 text-[13px] gap-4 [&>svg]:size-5 [&>svg]:text-sidebar-foreground/50"
                                             render={
                                                 <Link href={item.href!}>
-                                                    {item.icon && <item.icon />}
-                                                    <span>{item.label}</span>
+                                                    {item.icon && <item.icon/>}
+                                                    <span className="w-full text-[13px] font-normal">{item.label}</span>
                                                 </Link>
                                             }
                                         />
@@ -128,9 +115,9 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
                         </SidebarGroup>
                     ))}
                 </SidebarContent>
-                <SidebarFooter>
+                {/* <SidebarFooter>
                     <NavUser />
-                </SidebarFooter>
+                </SidebarFooter> */}
             </Sidebar>
         </>
     )

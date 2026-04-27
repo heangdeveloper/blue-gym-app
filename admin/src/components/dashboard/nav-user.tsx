@@ -1,16 +1,14 @@
 "use client"
+
 import {
     BadgeCheck,
     Bell,
     ChevronsUpDown,
-    CreditCard,
     LogOut,
-    Sparkles,
 } from "lucide-react"
 import {
     Avatar,
     AvatarFallback,
-    AvatarImage,
 } from "@/components/ui/avatar"
 import {
     DropdownMenu,
@@ -28,7 +26,15 @@ import {
     useSidebar,
 } from "@/components/ui/sidebar"
 
-export function NavUser() {
+export default function NavUser({
+    user,
+}: {
+    user: {
+        name: string
+        email: string
+        avatar: string
+    }
+}) {
     const { isMobile } = useSidebar()
 
     return (
@@ -44,7 +50,7 @@ export function NavUser() {
                                 <AvatarFallback className="rounded-lg">CN</AvatarFallback>
                             </Avatar>
                             <div className="grid flex-1 text-left text-sm leading-tight">
-                                <span className="truncate font-medium">Sim Kimheang</span>
+                                <span className="truncate font-medium"></span>
                                 <span className="truncate text-xs">Admin</span>
                             </div>
                             <ChevronsUpDown className="ml-auto size-4" />

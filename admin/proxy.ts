@@ -1,21 +1,27 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-export default function proxy(request: NextRequest) {
-    const token = request.cookies.get("token")?.value;
-    const { pathname } = request.nextUrl;
+// 1. Specify protected and public routes
+const protectedRoutes = ['/dashboard']
+const publicRoutes = ['/login']
 
-    const isAuthPage = pathname.startsWith("/login");
-    const isDashboard = pathname.startsWith("/dashboard");
+export default async function proxy(request: NextRequest) {
+    // 2. Check if the current route is protected or public
+    const path = request.nextUrl.pathname
+    const isProtectedRoute = protectedRoutes.includes(path)
+    const isPublicRoute = publicRoutes.includes(path)
 
-    // 🔒 Protect dashboard
-    if (!token && isDashboard) {
-        return NextResponse.redirect(new URL("/login", request.url));
+    // 3. Decrypt the token from the cookie
+    const token = request.cookies.get('auth_token')?.value
+
+    // 4. Redirect to /login if the user is not authenticated
+    if (isProtectedRoute && !token) {
+        return NextResponse.redirect(new URL('/login', request.nextUrl))
     }
 
-    // 🚫 Prevent logged-in users from login page
-    if (token && isAuthPage) {
-        return NextResponse.redirect(new URL("/dashboard", request.url));
+    // 5. Redirect to /dashboard if the user is authenticated
+    if (isPublicRoute && token) {
+        return NextResponse.redirect(new URL('/dashboard', request.nextUrl))
     }
 
     return NextResponse.next();
@@ -23,4 +29,4 @@ export default function proxy(request: NextRequest) {
 
 export const config = {
     matcher: ["/dashboard/:path*", "/login"],
-}
+};

@@ -1,11 +1,13 @@
 "use client";
 
+import * as React from "react"
 import {
     Card,
     CardContent,
     CardDescription,
     CardHeader,
     CardTitle,
+    
 } from "@/components/ui/card"
 import {
     Field,
@@ -13,8 +15,13 @@ import {
     FieldLabel,
     FieldError,
 } from "@/components/ui/field"
+import {
+    Alert,
+    AlertTitle,
+} from "@/components/ui/alert"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { AlertTriangleIcon } from "lucide-react"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form";
@@ -28,7 +35,8 @@ const formSchema = z.object({
 });
 
 export default function Page() {
-    const form = useForm<z.infer<typeof formSchema>>({
+    const [serverError, setServerError] = React.useState<string | null>(null);
+    const { control, handleSubmit, setError, formState: { isSubmitting }, } = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             username: "",
@@ -39,23 +47,23 @@ export default function Page() {
     const router = useRouter();
 
     async function onSubmit(data: z.infer<typeof formSchema>) {
+        setServerError(null);
         try {
             const res = await fetch("/api/auth/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),
-                credentials: "include",
             })
 
             const result = await res.json();
+            console.log("Login response:", result);
 
-            if (!res.ok) throw new Error("Login failed");
-
-            form.reset();
-
-            router.push("/dashboard");
+            if (result.success === false) {
+                setServerError(result.message || "Login failed")
+            } else if (result.success === true) {
+                router.push("/dashboard");
+            }
+            
         } catch(err) {
             console.error("Failed to login:", err);
         }
@@ -70,11 +78,17 @@ export default function Page() {
                         <CardDescription>Enter your email below to login to your account</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <form id="form-signin" onSubmit={form.handleSubmit(onSubmit)} autoComplete="off">
+                        <form id="form-signin" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
+                            {serverError && (
+                                <Alert className="max-w-md mb-4 border-red-200 bg-red-50 text-red-900 dark:border-red-900 dark:bg-red-950 dark:text-red-50">
+                                    <AlertTriangleIcon />
+                                    <AlertTitle>{serverError}</AlertTitle>
+                                </Alert>
+                            )}
                             <FieldGroup>
                                 <Controller
                                     name="username"
-                                    control={form.control}
+                                    control={control}
                                     render={({ field, fieldState}) => (
                                         <Field data-invalid={fieldState.invalid}>
                                             <FieldLabel htmlFor="username">
@@ -86,6 +100,10 @@ export default function Page() {
                                                 id="username"
                                                 aria-invalid={fieldState.invalid}
                                                 type="text"
+                                                onChange={(e) => {
+                                                    field.onChange(e);
+                                                    setServerError(null);
+                                                }}
                                             />
                                             {fieldState.invalid && (
                                                 <FieldError errors={[fieldState.error]} />
@@ -95,7 +113,7 @@ export default function Page() {
                                 />
                                 <Controller
                                     name="password"
-                                    control={form.control}
+                                    control={control}
                                     render={({ field, fieldState}) => (
                                         <Field data-invalid={fieldState.invalid}>
                                             <FieldLabel htmlFor="username">
@@ -107,6 +125,10 @@ export default function Page() {
                                                 id="password"
                                                 aria-invalid={fieldState.invalid}
                                                 type="password"
+                                                onChange={(e) => {
+                                                    field.onChange(e);
+                                                    setServerError(null);
+                                                }}
                                             />
                                             {fieldState.invalid && (
                                                 <FieldError errors={[fieldState.error]} />
@@ -115,7 +137,7 @@ export default function Page() {
                                     )}
                                 />
                                 <Field>
-                                    <Button type="submit" form="form-signin">Login</Button>
+                                    <Button type="submit" form="form-signin" disabled={isSubmitting}>{isSubmitting ? "Logging in..." : "Login"}</Button>
                                 </Field>
                             </FieldGroup>
                         </form>

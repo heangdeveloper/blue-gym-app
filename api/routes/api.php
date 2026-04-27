@@ -14,11 +14,7 @@ use App\Http\Controllers\Api\AuthController;
 // Public routes
 Route::post('/login', [AuthController::class, 'login']);
 
-// Protected routes
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/me', [AuthController::class, 'me']);
-    Route::apiResources([
+Route::apiResources([
         'packages' => PackageController::class,
         'classes' => ClasseController::class,
         'branchs' => BranchController::class,
@@ -27,5 +23,11 @@ Route::middleware('auth:sanctum')->group(function () {
         'products' => ProductController::class,
         'walkins' => WalkinController::class,
     ]);
+
+// Protected routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/me', [AuthController::class, 'me']);
+    
 });
 

@@ -1,24 +1,21 @@
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 
-const API_URL = "http://127.0.0.1:8000";
-
-export async function GET(req: Request) {
-    const cookie = req.headers.get("cookie") || "";
+export async function GET() {
+    const API_URL = process.env.NEXT_PUBLIC_API_URL;
+    const cookieStore = await cookies();
+    const token = cookieStore.get('auth_token')?.value;
 
     const res = await fetch(`${API_URL}/api/me`, {
-        method: "GET",
         headers: {
-            Cookie: cookie,
-            Accept: "application/json",
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
         },
-        credentials: "include",
     });
 
     if (!res.ok) {
-        return NextResponse.json({ user: null }, { status: 401 });
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const data = await res.json();
-
-    return NextResponse.json({ user: data });
+    return NextResponse.next(); 
 }

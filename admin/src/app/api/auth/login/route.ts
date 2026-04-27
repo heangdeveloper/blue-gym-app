@@ -1,35 +1,41 @@
 import { NextResponse } from "next/server";
-
-const API_URL = "http://127.0.0.1:8000";
+import '@/../envConfig'; // Load environment variables
 
 export async function POST(request: Request) {
-    const body = await request.json();
+    const credentials = await request.json();
+    const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-    const csrf = await fetch(`${API_URL}/sanctum/csrf-cookie`, {
-        credentials: "include",
+    const csrfRes = await fetch(`${API_URL}/sanctum/csrf-cookie`, {
+        method: 'GET',
     });
 
-    const res = await fetch(`${API_URL}/api/login`, {
-        method: "POST",
+    const setCookie = csrfRes.headers.get('set-cookie');
+
+    const loginRes = await fetch(`${API_URL}/api/login`, {
+        method: 'POST',
         headers: {
-            "Content-Type": "application/json",
-            Cookie: csrf.headers.get("set-cookie") || "",
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Cookie': setCookie || '', // Forward the CSRF cookie
         },
-        body: JSON.stringify(body),
-        credentials: "include",
+        body: JSON.stringify(credentials),
     });
 
-    const data = await res.json();
+    const data = await loginRes.json();
 
-    console.log("API response:", data);
-    
-    const response = NextResponse.json(data);
+    if (!loginRes.ok) return NextResponse.json({ success: false, message: data.message, user: data.user });
 
-    // forward cookies to browser
-    const setCookie = res.headers.get("set-cookie");
-    if (setCookie) {
-        response.headers.set("set-cookie", setCookie);
-    }
+    const response = NextResponse.json({ success: true, user: data.user});
+
+    response.cookies.set({
+        name: 'auth_token',
+        value: data.auth_token,
+        httpOnly: true, // Prevents JS access for security
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 60 * 60 * 24 * 7, // 1 week
+    });
 
     return response;
 }
