@@ -68,7 +68,7 @@ export const navigationItems: NavGroup[] = [
                 label: "Authentication",
                 icon: ShieldUser,
                 children: [
-                    { label: "User", href: "/users" },
+                    { label: "User", href: "/user" },
                     { label: "Role", href: "/role" },
                     { label: "Permission", href: "/permission" },
                 ],

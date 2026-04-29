@@ -6,6 +6,9 @@ import {
     DropdownMenuContent,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+    SidebarTrigger,
+} from "@/components/ui/sidebar"
 import { Moon, Bell, Menu } from 'lucide-react';
 import Link from 'next/link'
 
@@ -15,9 +18,9 @@ export default function Header() {
             <div className="sticky top-0 z-30">
                 <header className="flex justify-between items-center h-16 border-b border-border bg-background/80 px-4 backdrop-blur-xl sm:px-6">
                     <div className="flex items-center gap-3">
-                        <Button variant="ghost" size="icon" className="flex justify-center items-center w-8 h-8 text-muted-foreground rounded-lg transition-colors hover:bg-accent hover:text-foreground lg:hidden">
+                        <SidebarTrigger className="-ml-1">
                             <Menu className="h-5 w-5" />
-                        </Button>
+                        </SidebarTrigger>
                     </div>
                     <div className="flex items-center gap-2">
                         <Button variant="ghost" size="icon" className="rounded-full">

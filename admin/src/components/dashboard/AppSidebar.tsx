@@ -3,7 +3,6 @@
 import * as React from "react";
 import Link from 'next/link'
 import { useRouter } from "next/navigation";
-import NavUser from "@/components/dashboard/nav-user";
 import { navigationItems } from "@/lib/navigation";
 
 import {
@@ -24,12 +23,16 @@ import {
     SidebarMenuSub,
     SidebarMenuSubItem
 } from "@/components/ui/sidebar"
-
 import {
     Collapsible,
     CollapsibleContent,
     CollapsibleTrigger,
 } from "@/components/ui/collapsible"
+import {
+    Avatar,
+    AvatarFallback,
+    AvatarImage
+} from "@/components/ui/avatar"
 
 export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const router = useRouter();
@@ -47,7 +50,7 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
     }
     return (
         <>
-            <Sidebar collapsible="icon" {...props}>
+            <Sidebar {...props}>
                 <SidebarHeader className="p-0">
                     <Link href="/dashboard" className="flex items-center h-16 px-8 gap-3">
                         <div className="flex justify-center items-center shrink-0 w-8 h-8 rounded-lg bg-sidebar-primary">
@@ -115,9 +118,18 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
                         </SidebarGroup>
                     ))}
                 </SidebarContent>
-                {/* <SidebarFooter>
-                    <NavUser />
-                </SidebarFooter> */}
+                <SidebarFooter className="py-2.5 px-4 bg-sidebar-primary">
+                    <div className="flex flex-wrap gap-2">
+                        <Avatar className="h-10 w-10 rounded-full">
+                            <AvatarImage className="rounded-full" src="https://mira.bootlab.io/static/img/avatars/avatar-1.jpg" />
+                            <AvatarFallback className="rounded-full">CN</AvatarFallback>
+                        </Avatar>
+                        <div className="grid flex-1 text-left text-sm leading-tight">
+                            <span className="text-[13px]">Sim Kimheang</span>
+                            <span className="text-[11px] p-px">Administration</span>
+                        </div>
+                    </div>
+                </SidebarFooter>
             </Sidebar>
         </>
     )
