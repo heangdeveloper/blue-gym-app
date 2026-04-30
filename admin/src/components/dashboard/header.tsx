@@ -1,48 +1,88 @@
-'use client'
 
 import { Button } from "@/components/ui/button"
 import {
+    Avatar,
+    AvatarFallback,
+    AvatarImage,
+} from "@/components/ui/avatar"
+import {
     DropdownMenu,
     DropdownMenuContent,
+    DropdownMenuGroup,
     DropdownMenuTrigger,
+    DropdownMenuSeparator,
+    DropdownMenuItem,
+    DropdownMenuLabel
 } from "@/components/ui/dropdown-menu"
 import {
     SidebarTrigger,
 } from "@/components/ui/sidebar"
-import { Moon, Bell, Menu } from 'lucide-react';
-import Link from 'next/link'
+import LocaleSwitcher from "@/components/dashboard/LocaleSwitcher"
+import { Icon } from "@iconify/react";
+import { Locale } from "next-intl"
+import { cookies } from 'next/headers';
 
 export default function Header() {
+    async function changeLocalAction(locale: Locale) {
+        "use server";
+        const cookieStore = await cookies();
+        cookieStore.set("lang", locale);
+    
+    }
     return (
         <>
             <div className="sticky top-0 z-30">
-                <header className="flex justify-between items-center h-16 border-b border-border bg-background/80 px-4 backdrop-blur-xl sm:px-6">
+                <header className="flex justify-between items-center h-16 bg-background/80 px-4 backdrop-blur-xl sm:px-6">
                     <div className="flex items-center gap-3">
-                        <SidebarTrigger className="-ml-1">
-                            <Menu className="h-5 w-5" />
-                        </SidebarTrigger>
+                        <SidebarTrigger className="-ml-1"/>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center">
                         <Button variant="ghost" size="icon" className="rounded-full">
-                            <Moon className="h-5 w-5" />
+                            <Icon icon="duo-icons:sun" />
                         </Button>
+                        <LocaleSwitcher changeLocalAction={changeLocalAction} />
                         <DropdownMenu>
                             <DropdownMenuTrigger render={
                                 <Button variant="ghost" size="icon" className="rounded-full">
-                                    <Bell className="h-5 w-5" />
+                                    <Avatar className="rounded-full">
+                                        <AvatarImage className="rounded-full" src="https://mira.bootlab.io/static/img/avatars/avatar-1.jpg" />
+                                        <AvatarFallback className="rounded-full">CN</AvatarFallback>
+                                    </Avatar>
                                 </Button>
-                            }>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                                <div className="">
-
-                                </div>
-                                <div className="">
-                                    
-                                </div>
-                                <div className="border-t border-border">
-                                    <Link href="/profile" className="flex justify-center items-center py-2.5">View all notifications</Link>
-                                </div>
+                            }/>
+                            <DropdownMenuContent
+                                className="min-w-50 max-w-57.5 w-full py-2 rounded-xl ring-0"
+                            >
+                                <DropdownMenuGroup>
+                                    <DropdownMenuLabel className="flex items-center pt-2 px-4 pb-4 gap-2">
+                                        <Avatar className="w-9 h-9 rounded-full">
+                                            <AvatarImage src="https://mira.bootlab.io/static/img/avatars/avatar-1.jpg" />
+                                            <AvatarFallback>CN</AvatarFallback>
+                                        </Avatar>
+                                        <div className="grid flex-1 text-left text-sm leading-tight">
+                                            <span className="text-sm font-medium text-gray-950">Sim Kimheang</span>
+                                            <span className="text-xs font-light">Administration</span>
+                                        </div>
+                                    </DropdownMenuLabel>
+                                </DropdownMenuGroup>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuGroup className="pt-2">
+                                    <DropdownMenuItem className="py-1.25 px-4 leading-5">
+                                        Profile & Account
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem className="py-1.25 px-4 leading-5">
+                                        Settings
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem className="py-1.25 px-4 leading-5">
+                                        Manage Team
+                                    </DropdownMenuItem>
+                                </DropdownMenuGroup>
+                                <DropdownMenuSeparator className="my-2" />
+                                <DropdownMenuGroup>
+                                    <DropdownMenuItem className="py-1.25 px-4 leading-5">
+                                        Sign Out
+                                    </DropdownMenuItem>
+                                </DropdownMenuGroup>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>

@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { cn } from "@/lib/utils";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
+import {NextIntlClientProvider} from 'next-intl';
 import { Inter } from 'next/font/google'
 
 const inter = Inter({
@@ -20,13 +19,16 @@ export default function RootLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    
     return (
         <html
             lang="en"
             className={inter.className}
         >
             <body>
-                <NuqsAdapter>{children}</NuqsAdapter>
+                <NextIntlClientProvider>
+                    <NuqsAdapter>{children}</NuqsAdapter>
+                </NextIntlClientProvider>
             </body>
         </html>
     );

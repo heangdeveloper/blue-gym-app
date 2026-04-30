@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { useRouter } from "next/navigation";
 import { navigationItems } from "@/lib/navigation";
 
+import { Icon } from "@iconify/react";
+
 import {
     Dumbbell,
     ChevronDown
@@ -76,7 +78,7 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
                                                 <CollapsibleTrigger
                                                     render={
                                                         <SidebarMenuButton className="group w-full h-auto py-3 pl-8 pr-7 text-[13px] gap-4 [&>svg]:text-sidebar-foreground/50 [&>svg]:size-5 group-data-open:bg-sidebar-accent" tooltip={item.label}>
-                                                            {item.icon && <item.icon />}
+                                                            {item.icon && <Icon icon={item.icon} />}
                                                             <span className="w-full text-[13px] font-normal">{item.label}</span>
                                                             <ChevronDown className="transition-transform duration-200 group-data-open:rotate-180" />
                                                         </SidebarMenuButton>
@@ -106,7 +108,7 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
                                             className="w-full h-auto py-3 pl-8 pr-7 text-[13px] gap-4 [&>svg]:size-5 [&>svg]:text-sidebar-foreground/50"
                                             render={
                                                 <Link href={item.href!}>
-                                                    {item.icon && <item.icon/>}
+                                                    {item.icon && <Icon icon={item.icon} />}
                                                     <span className="w-full text-[13px] font-normal">{item.label}</span>
                                                 </Link>
                                             }

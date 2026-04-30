@@ -1,13 +1,3 @@
-import {
-    ShieldUser,
-    FileSliders,
-    Store,
-    User,
-    Dumbbell,
-    House
-} from "lucide-react"
-import type { LucideIcon } from "lucide-react";
-
 type NavChild = {
   label: string;
   href: string;
@@ -16,7 +6,7 @@ type NavChild = {
 type NavItem = {
   label: string;
   href?: string;
-  icon?: LucideIcon;
+  icon?: string;
   children?: NavChild[];
 };
 
@@ -31,7 +21,7 @@ export const navigationItems: NavGroup[] = [
             items: [
                 {
                     label: "Dashboard",
-                    icon: House,
+                    icon: "duo-icons:compass",
                     href: "/dashboard",
                 },
             ],
@@ -41,7 +31,7 @@ export const navigationItems: NavGroup[] = [
         items: [
             {
                 label: "Customers",
-                icon: User,
+                icon: "duo-icons:user",
                 children: [
                     { label: "Membership", href: "/membership" },
                     { label: "Walkin", href: "/walkin" },
@@ -49,7 +39,7 @@ export const navigationItems: NavGroup[] = [
             },
             {
                 label: "E-commerce",
-                icon: Store,
+                icon: "duo-icons:shopping-bag",
                 children: [
                     { label: "Category", href: "/category" },
                     { label: "Product", href: "/product" },
@@ -57,7 +47,7 @@ export const navigationItems: NavGroup[] = [
             },
             {
                 label: "Gym",
-                icon: Dumbbell,
+                icon: "duo-icons:building",
                 children: [
                     { label: "Packages", href: "/packages" },
                     { label: "Trainers", href: "/trainers" },
@@ -66,7 +56,7 @@ export const navigationItems: NavGroup[] = [
             },
             {
                 label: "Authentication",
-                icon: ShieldUser,
+                icon: "duo-icons:settings",
                 children: [
                     { label: "User", href: "/user" },
                     { label: "Role", href: "/role" },
@@ -75,7 +65,7 @@ export const navigationItems: NavGroup[] = [
             },
             {
                 label: "Report",
-                icon: FileSliders,
+                icon: "duo-icons:box",
                 children: [
                     { label: "Income", href: "/income" },
                     { label: "Expense", href: "/expense" },

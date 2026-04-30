@@ -1,0 +1,9 @@
+{
+    "CategoryPage": {
+        "header": {
+            "title": "Categorys",
+            "subtitle": "Manage product categorys.",
+            "addButton": "Add Category"
+        }
+    }
+}

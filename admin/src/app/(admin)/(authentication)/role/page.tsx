@@ -2,23 +2,20 @@ import {
     Plus
 } from "lucide-react";
 
-import {useTranslations} from 'next-intl';
 import { Button } from "@/components/ui/button";
 
 export default function Page() {
-    const t = useTranslations('CategoryPage');
-    
     return (
         <>
             <div>
                 <div className="mb-6">
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                         <div className="space-y-1">
-                            <h2 className="text-2xl font-bold tracking-tight">{t('header.title')}</h2>
-                            <p className="mt-1 text-sm text-muted-foreground">{t('header.subtitle')}</p>
+                            <h2 className="text-2xl font-bold tracking-tight">Roles</h2>
+                            <p className="mt-1 text-sm text-muted-foreground">Manage user roles.</p>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
-                            <Button><Plus className="h-5 w-5"/>{t('header.addButton')}</Button>
+                            <Button><Plus className="h-5 w-5"/>Add Role</Button>
                         </div>
                     </div>
                 </div>
