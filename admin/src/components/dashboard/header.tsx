@@ -22,11 +22,14 @@ import { Icon } from "@iconify/react";
 import { Locale } from "next-intl"
 import { cookies } from 'next/headers';
 
-export default function Header() {
+export default async function Header() {
+    const cookieStore = await cookies();
+    const locale = cookieStore.get("locale")?.value || "en";
+
     async function changeLocalAction(locale: Locale) {
         "use server";
         const cookieStore = await cookies();
-        cookieStore.set("lang", locale);
+        cookieStore.set("locale", locale);
     
     }
     return (
@@ -40,7 +43,7 @@ export default function Header() {
                         <Button variant="ghost" size="icon" className="rounded-full">
                             <Icon icon="duo-icons:sun" />
                         </Button>
-                        <LocaleSwitcher changeLocalAction={changeLocalAction} />
+                        <LocaleSwitcher changeLocalAction={changeLocalAction} currentLocale={locale as Locale} />
                         <DropdownMenu>
                             <DropdownMenuTrigger render={
                                 <Button variant="ghost" size="icon" className="rounded-full">

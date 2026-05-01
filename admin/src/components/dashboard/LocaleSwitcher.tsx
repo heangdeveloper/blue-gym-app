@@ -13,14 +13,15 @@ import { Icon } from "@iconify/react";
 
 type Props = {
     changeLocalAction: (locale: Locale) => Promise<void>;
+    currentLocale: Locale;
 }
 
-export default function LocaleSwitcher({ changeLocalAction }: Props) {
+export default function LocaleSwitcher({ changeLocalAction, currentLocale }: Props) {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger render={
                 <Button variant="ghost" size="icon" className="rounded-full">
-                    <Icon icon="circle-flags:kh" />
+                    <Icon icon={`circle-flags:${currentLocale}`} />
                 </Button>
             }>
             </DropdownMenuTrigger>
