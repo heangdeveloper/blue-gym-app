@@ -1,9 +1,80 @@
 {
+    "sidbar": {
+        "overview": {
+            "name": "ទូទៅ",
+            "item": {
+                "dashboard": "ផ្ទាំងគ្រប់គ្រង"
+            }
+        },
+        "management": {
+            "name": "គ្រប់គ្រង",
+            "item": {
+                "customers": {
+                    "name": "អតិថិជន",
+                    "subMenu": {
+                        "membership": "សមាជិក",
+                        "walkin": "ចូលហាត់ភ្លាមៗ"
+                    }
+                },
+                "e-commerce": {
+                    "name": "លក់ទំនិញ",
+                    "subMenu": {
+                        "product": "ផលិតផល",
+                        "categorie": "ប្រភេទ"
+                    }
+                },
+                 "gym": {
+                    "name": "ក្លឹបហាត់ប្រាណ",
+                    "subMenu": {
+                        "package": "កញ្ចប់ហាត់ប្រាណ",
+                        "trainer": "គ្រូបង្វឹក",
+                        "classe": "ថ្នាក់"
+                    }
+                },
+                "authentication": {
+                    "name": "ផ្ទៀងផ្ទាត់អត្តសញ្ញាណ",
+                    "subMenu": {
+                        "user": "អ្នកប្រើប្រាស់",
+                        "role": "តួនាទី",
+                        "permission": "ការអនុញ្ញាត"
+                    }
+                },
+                "report": {
+                    "name": "របាយការណ៍",
+                    "subMenu": {
+                        "package": "ប្រាក់ចំណូល",
+                        "trainer": "ការចំណាយ"
+                    }
+                }
+            }
+        }
+        
+    },
     "CategoryPage": {
         "header": {
             "title": "ប្រភេទ",
             "subtitle": "គ្រប់គ្រងប្រភេទផលិតផល",
             "addButton": "បន្ថែមប្រភេទ"
+        },
+        "table": {
+            "header": {
+                "name": "ឈ្មោះ",
+                "status": "ស្ថានភាព"
+            }
+        },
+        "dialog": {
+            "title": "បន្ថែមប្រភេទ",
+            "form": {
+                "name": "ឈ្មោះ"
+            },
+            "button": {
+                "cancel": "បោះបង់",
+                "save": "រក្សាទុក",
+                "update": "កែប្រែ"
+            }
         }
+    },
+    "datatable": {
+        "noresults": "មិនមានទិន្នន័យដែលត្រូវបង្ហាញ"
     }
 }

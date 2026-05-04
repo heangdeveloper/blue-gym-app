@@ -35,7 +35,7 @@ export default async function Header() {
     return (
         <>
             <div className="sticky top-0 z-30">
-                <header className="flex justify-between items-center h-16 bg-background/80 px-4 backdrop-blur-xl sm:px-6">
+                <header className="flex justify-between items-center h-16 px-4 backdrop-blur-xl sm:px-6">
                     <div className="flex items-center gap-3">
                         <SidebarTrigger className="-ml-1"/>
                     </div>

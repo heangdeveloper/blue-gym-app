@@ -35,8 +35,10 @@ import {
     AvatarFallback,
     AvatarImage
 } from "@/components/ui/avatar"
+import { useTranslations } from "next-intl";
 
 export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+    const t = useTranslations("sidbar");
     const router = useRouter();
 
     async function handleLogout() {
@@ -67,7 +69,7 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
                 <SidebarContent className="py-2.5">
                     {navigationItems.map((group, i) => (
                         <SidebarGroup className="p-0" key={i}>
-                            <SidebarGroupLabel className="pt-4 px-7 pb-1 text-[11px] font-medium uppercase">{group.group}</SidebarGroupLabel>
+                            <SidebarGroupLabel className="pt-4 px-7 pb-1 text-[11px] font-medium uppercase">{t(group.group)}</SidebarGroupLabel>
                             {group.items.map((item, j) => (
                                 <SidebarMenu key={j}>
                                     {item.children?.length ? (
@@ -77,9 +79,9 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
                                             <SidebarMenuItem>
                                                 <CollapsibleTrigger
                                                     render={
-                                                        <SidebarMenuButton className="group w-full h-auto py-3 pl-8 pr-7 text-[13px] gap-4 [&>svg]:text-sidebar-foreground/50 [&>svg]:size-5 group-data-open:bg-sidebar-accent" tooltip={item.label}>
+                                                        <SidebarMenuButton className="group w-full h-auto py-3 pl-8 pr-7 text-[13px] gap-4 [&>svg]:text-sidebar-foreground/50 [&>svg]:size-5 group-data-open:bg-sidebar-accent" tooltip={t(item.label)}>
                                                             {item.icon && <Icon icon={item.icon} />}
-                                                            <span className="w-full text-[13px] font-normal">{item.label}</span>
+                                                            <span className="w-full text-[13px] font-normal">{t(item.label)}</span>
                                                             <ChevronDown className="transition-transform duration-200 group-data-open:rotate-180" />
                                                         </SidebarMenuButton>
                                                     }
@@ -92,7 +94,7 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
                                                                     className="h-auto py-2 pr-4 pl-14"
                                                                     render={
                                                                         <Link href={sub.href}>
-                                                                            <span className="w-full px-4 text-[13px] leading-5 text-sidebar-foreground/70">{sub.label}</span>
+                                                                            <span className="w-full px-4 text-[13px] leading-5 text-sidebar-foreground/70">{t(sub.label)}</span>
                                                                         </Link>
                                                                     }
                                                                 />
@@ -109,7 +111,7 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
                                             render={
                                                 <Link href={item.href!}>
                                                     {item.icon && <Icon icon={item.icon} />}
-                                                    <span className="w-full text-[13px] font-normal">{item.label}</span>
+                                                    <span className="w-full text-[13px] font-normal">{t(item.label)}</span>
                                                 </Link>
                                             }
                                         />

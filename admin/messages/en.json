@@ -1,9 +1,86 @@
 {
+    "header": {
+        "item": {
+            "settings": "Settings",
+            "signout": "Sign Out"
+        }
+    },
+    "sidbar": {
+        "overview": {
+            "name": "Overview",
+            "item": {
+                "dashboard": "Dashboard"
+            }
+        },
+        "management": {
+            "name": "Management",
+            "item": {
+                "customers": {
+                    "name": "Customers",
+                    "subMenu": {
+                        "membership": "Membership",
+                        "walkin": "Walk-in"
+                    }
+                },
+                "e-commerce": {
+                    "name": "E-Commerce",
+                    "subMenu": {
+                        "product": "Products",
+                        "categorie": "Categories"
+                    }
+                },
+                 "gym": {
+                    "name": "Gym",
+                    "subMenu": {
+                        "package": "Package",
+                        "trainer": "Trainer",
+                        "classe": "Class"
+                    }
+                },
+                "authentication": {
+                    "name": "Authentication",
+                    "subMenu": {
+                        "user": "User",
+                        "role": "Role",
+                        "permission": "Permission"
+                    }
+                },
+                "report": {
+                    "name": "Report",
+                    "subMenu": {
+                        "package": "Income",
+                        "trainer": "Expenses"
+                    }
+                }
+            }
+        }
+        
+    },
     "CategoryPage": {
         "header": {
             "title": "Categorys",
             "subtitle": "Manage product categorys.",
             "addButton": "Add Category"
+        },
+        "table": {
+            "header": {
+                "name": "Name",
+                "status": "Status"
+            }
+        },
+        "dialog": {
+            "title": "Add Category",
+            "form": {
+                "name": "Name"
+            },
+            "button": {
+                "cancel": "Cancel",
+                "save": "Save changes",
+                "update": "Update"
+            }
         }
+    },
+    "datatable": {
+        "noresults": "No results."
     }
 }
