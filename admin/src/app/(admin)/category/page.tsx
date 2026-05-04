@@ -142,7 +142,7 @@ export default function Page() {
                 id: "name",
                 accessorKey: "name",
                 header: ({ column } : { column: Column<Category, unknown> }) => (
-                    <DataTableColumnHeader column={column} label={t('table.header.name')}/>
+                    <DataTableColumnHeader column={column} label="Name"/>
                 ),
                 cell: ({ cell }) => <div>{cell.getValue<Category["name"]>()}</div>,
                 meta: {
@@ -152,6 +152,7 @@ export default function Page() {
                     icon: Text,
                 },
                 enableColumnFilter: true,
+                size: 200
             },
             {
                 id: "status",
@@ -180,6 +181,7 @@ export default function Page() {
                     ],
                 },
                 enableColumnFilter: true,
+                size: 200
             },
             {
                 id: "actions",
@@ -192,6 +194,7 @@ export default function Page() {
                         </div>
                     )
                 },
+                size: 167
             }
         ],[]
     )
