@@ -60,12 +60,34 @@
             "header": {
                 "name": "ឈ្មោះ",
                 "status": "ស្ថានភាព"
+            },
+            "body": {
+                "status": {
+                    "active": "ដំណើរការ",
+                    "inactive": "បិទ"
+                },
+                "actions": {
+                    "edit": "កែប្រែ",
+                    "delete": "លុប"
+                }
             }
         },
         "dialog": {
-            "title": "បន្ថែមប្រភេទ",
+            "addTitle": "បន្ថែមប្រភេទ",
+            "editTitle": "កែប្រែប្រភេទ",
             "form": {
-                "name": "ឈ្មោះ"
+                "name": "ឈ្មោះ",
+                "status": "ស្ថានភាព",
+                "select": {
+                    "placeholder": "ជ្រើសរើសស្ថានភាព",
+                    "item": {
+                        "active": "ដំណើរការ",
+                        "inactive": "បិទ"
+                    }
+                },
+                "validation": {
+                    "name": "តម្រូវឲ្យមានឈ្មោះ"
+                }
             },
             "button": {
                 "cancel": "បោះបង់",
@@ -75,6 +97,12 @@
         }
     },
     "datatable": {
-        "noresults": "មិនមានទិន្នន័យដែលត្រូវបង្ហាញ"
+        "noresults": "មិនមានទិន្នន័យក្នុងតារាងនេះទេ"
+    },
+    "removeDialog": {
+        "title": "តើអ្នកប្រាកដទាំងស្រុងទេ?",
+        "description": "សកម្មភាពនេះមិនអាចត្រឡប់វិញបានទេ។",
+        "submit": "បាទ/ចាស៎, លុប!",
+        "cancel": "ទេ, បោះបង់"
     }
 }

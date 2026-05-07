@@ -2,16 +2,12 @@
 
 import * as React from "react";
 import {
-    CheckCircle,
-    CheckCircle2,
     Text,
-    XCircle,
     Plus,
     Pencil,
     Trash2,
     X,
-    Download,
-    MoreHorizontal
+    Download
 } from "lucide-react";
 import type { Column, ColumnDef, Table } from "@tanstack/react-table";
 import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
@@ -27,7 +23,6 @@ import { useTranslations } from 'next-intl';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
 import {
     Field,
     FieldGroup,
@@ -39,16 +34,17 @@ import {
     DialogContent,
     DialogHeader,
     DialogTitle,
-    DialogDescription,
     DialogFooter,
     DialogClose,
 } from "@/components/ui/dialog";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    SelectGroup
+} from "@/components/ui/select"
 import {
     ActionBar,
     ActionBarClose,
@@ -57,59 +53,129 @@ import {
     ActionBarSelection,
     ActionBarSeparator
 } from "@/components/ui/action-bar";
+import {
+    Status,
+    StatusIndicator,
+    StatusLabel,
+} from "@/components/ui/status";
+import { useConfirm } from "@/app/provider/ConfirmDialogProvider";
 
 interface Category{
-    id: string;
+    id: number;
     name: string;
     status: "active" | "inactive";
 }
 
-const formSchema = z.object({
-    name: z.string()
-})
+const createFormSchema = (t: any) =>
+    z.object({
+        name: z
+        .string()
+        .min(1, { message: t('dialog.form.validation.name') }),
+        status: z.enum(["active", "inactive"]).optional(),
+    });
 
 export default function Page() {
+    const t = useTranslations('CategoryPage');
+    const formSchema = React.useMemo(() => createFormSchema(t), [t]);
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             name: "",
+            status: "active",
         }
     })
-
-    const t = useTranslations('CategoryPage');
     const [categorys, setCategorys] = React.useState<Category[]>([]);
     const [openAddDialog, setOpenAddDialog] = React.useState(false);
+    const [selectedId, setSelectedId] = React.useState<number | null>(null);
     const [name] = useQueryState("name", parseAsString.withDefault(""));
     const [status] = useQueryState("status", parseAsArrayOf(parseAsString).withDefault([]));
 
+    const confrim = useConfirm();
+
     React.useEffect(() => {
-        async function fetchPackages() {
+        async function fetchCategorys() {
             try {
-                const res = await fetch("api/category", {
+                const res = await fetch(`api/category`, {
                     headers: {
                         Accept: "application/json",
                     },
                 });
                 const json = await res.json();
-                setCategorys(json.data);
+                setCategorys(json.data.map((item: any) => item.data ?? item));
             } catch (err) {
-                console.error("Failed to fetch packages:", err);
+                console.error("Failed to fetch categorys:", err);
             }
         }
-        fetchPackages();
+        fetchCategorys();
     }, []);
 
     async function onSubmit(data: z.infer<typeof formSchema>) {
+        try {
+            if (selectedId !== null) {
+                const res = await fetch(`api/category/${selectedId}`, {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Accept: "application/json",
+                    },
+                    body: JSON.stringify(data)
+                })
+                const updatedItem = await res.json();
 
+                setCategorys((prev) =>
+                    prev.map((item) =>
+                        item.id === Number(selectedId)
+                            ? updatedItem.data.data ?? updatedItem.data
+                            : item
+                    )
+                );
+            } else {
+                const res = await fetch("api/category", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Accept: "application/json",
+                    },
+                    body: JSON.stringify(data)
+                })
+
+                const newItem = await res.json();
+                console.log(newItem)
+
+                setCategorys((prev) => [...prev, newItem.data]);
+            }
+            setOpenAddDialog(false);
+            setSelectedId(null);
+            form.reset();
+        } catch(err) {
+            console.error("Failed to save category:", err);
+        }
     }
+
+    const handleDelete = async (id: number) => {
+        const ok = await confrim()
+        if (!ok) return;
+
+        try {
+            await fetch(`/api/category/${id}`, {
+                method: "DELETE",
+            });
+
+            setCategorys((prev) =>
+                prev.filter((item) => item.id !== id)
+            );
+        } catch (err) {
+            console.error("Delete failed:", err);
+        }
+    };
 
     const filteredData = React.useMemo(() => {
         return categorys.filter((item) => {
             const matchesName = name === "" || item.name.toLowerCase().includes(name.toLowerCase());
-
-            return matchesName;
+            const matchesStatus = status.length === 0 || status.includes(item.status);
+            return matchesName && matchesStatus;
         })
-    }, [categorys, name]);
+    }, [categorys, name, status]);
 
     const columns = React.useMemo<ColumnDef<Category>[]>(
         () => [
@@ -119,7 +185,7 @@ export default function Page() {
                     <Checkbox
                         checked={
                             table.getIsAllPageRowsSelected() ||
-                            (table.getIsSomePageRowsSelected() && "indeterminate")
+                            (table.getIsSomePageRowsSelected())
                         }
                         onCheckedChange={(value) => 
                             table.toggleAllPageRowsSelected(!!value)
@@ -142,7 +208,7 @@ export default function Page() {
                 id: "name",
                 accessorKey: "name",
                 header: ({ column } : { column: Column<Category, unknown> }) => (
-                    <DataTableColumnHeader column={column} label="Name"/>
+                    <DataTableColumnHeader column={column} label={t("table.header.name")}/>
                 ),
                 cell: ({ cell }) => <div>{cell.getValue<Category["name"]>()}</div>,
                 meta: {
@@ -152,24 +218,25 @@ export default function Page() {
                     icon: Text,
                 },
                 enableColumnFilter: true,
-                size: 200
             },
             {
                 id: "status",
                 accessorKey: "status",
                 header: ({ column } : { column: Column<Category, unknown> }) => (
-                    <DataTableColumnHeader column={column} label="Status"/>
+                    <DataTableColumnHeader column={column} label={t("table.header.status")}/>
                 ),
                 cell: ({ cell }) => {
                     const status = cell.getValue<Category["status"]>();
-                    const statusClass = status === "active"
-                        ? "bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300"
-                        : "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300";
-
+                    const statusClass = status === "active" ? "success" : "error";
                     return (
-                        <Badge variant="outline" className={`capitalize gap-1 ${statusClass}`}>
-                            {status}
-                        </Badge>
+                        <Status variant={statusClass}>
+                            <StatusIndicator />
+                            <StatusLabel>
+                                {status === "active"
+                                    ? t("table.body.status.active")
+                                    : t("table.body.status.inactive")}
+                            </StatusLabel>
+                        </Status>
                     );
                 },
                 meta: {
@@ -181,7 +248,6 @@ export default function Page() {
                     ],
                 },
                 enableColumnFilter: true,
-                size: 200
             },
             {
                 id: "actions",
@@ -189,35 +255,38 @@ export default function Page() {
                     const item = row.original;
                     return (
                         <div className="flex items-center gap-1">
-                            <Button size="sm"><Pencil className="h-5 w-5"/>Edit</Button>
-                            <Button size="sm" variant="destructive"><Trash2 className="h-5 w-5"/>Delete</Button>
+                            <Button size="sm" onClick={() => {
+                                setSelectedId(item.id);
+                                form.reset({
+                                    name: item.name,
+                                    status: item.status,
+                                });
+                                setOpenAddDialog(true);
+                            }}><Pencil className="h-5 w-5"/>{t('table.body.actions.edit')}</Button>
+                            <Button size="sm" variant="destructive" onClick={() => handleDelete(item.id)}><Trash2 className="h-5 w-5"/>{t('table.body.actions.delete')}</Button>
                         </div>
                     )
                 },
-                size: 167
+                size: 167,
             }
-        ],[]
+        ],[form]
     )
 
     const { table } = useDataTable({
         data: filteredData,
         columns,
-        pageCount: Math.ceil(filteredData.length / 10),
-        initialState: {
-            sorting: [{ id: "name", desc: true }],
-            columnPinning: { right: ["actions"] },
-        },
-        getRowId: (row) => row.id,
+        pageCount: 10,
+        getRowId: (row) => row.id.toString(),
     });
 
     function TableActionBar({ table }: { table: Table<Category> }) {
-            const rows = table.getFilteredSelectedRowModel().rows;
-            const onOpenChange = React.useCallback((open: boolean) => {
-                if (!open) {
-                    table.toggleAllRowsSelected(false);
-                }
-            },[table],
-        );
+        const rows = table.getFilteredSelectedRowModel().rows;
+        const onOpenChange = React.useCallback((open: boolean) => {
+            if (!open) {
+                table.toggleAllRowsSelected(false);
+            }
+        },[table],
+    );
 
         return (
             <ActionBar open={rows.length > 0} onOpenChange={onOpenChange}>
@@ -277,13 +346,14 @@ export default function Page() {
                     setOpenAddDialog(open);
                     if(!open) {
                         form.reset();
+                        setSelectedId(null);
                     }
                 }}
             >
-                <form onSubmit={form.handleSubmit(onSubmit)} autoComplete="off">
-                    <DialogContent>
+                <form id="form-category" onSubmit={form.handleSubmit(onSubmit)} autoComplete="off">
+                    <DialogContent className="p-6.5 rounded-md ring-0">
                         <DialogHeader>
-                            <DialogTitle>{t('dialog.title')}</DialogTitle>
+                            <DialogTitle>{selectedId ? t('dialog.editTitle') : t('dialog.addTitle')}</DialogTitle>
                         </DialogHeader>
                         <FieldGroup>
                             <Controller
@@ -307,10 +377,40 @@ export default function Page() {
                                     </Field>
                                 )}
                             />
+                            <Controller
+                                name="status"
+                                control={form.control}
+                                render={({ field, fieldState }) => (
+                                    <Field data-invalid={fieldState.invalid}>
+                                        <FieldLabel htmlFor="form-category-status">
+                                            {t('dialog.form.status')}
+                                            <span className="text-destructive">*</span>
+                                        </FieldLabel>
+                                        <Select
+                                            value={field.value ?? ""}
+                                            defaultValue={field.value}
+                                            onValueChange={field.onChange}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder={t('dialog.form.select.placeholder')} />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectGroup>
+                                                    <SelectItem value="active">{t('dialog.form.select.item.active')}</SelectItem>
+                                                    <SelectItem value="inactive">{t('dialog.form.select.item.inactive')}</SelectItem>
+                                                </SelectGroup>
+                                            </SelectContent>
+                                        </Select>
+                                        {fieldState.invalid && (
+                                            <FieldError errors={[fieldState.error]} />
+                                        )}
+                                    </Field>
+                                )}
+                            />
                         </FieldGroup>
                         <DialogFooter>
                             <DialogClose render={<Button variant="outline">{t('dialog.button.cancel')}</Button>} />
-                            <Button type="submit" form="form-package">{t('dialog.button.save')}</Button>
+                            <Button type="submit" form="form-category">{selectedId ? t('dialog.button.update') : t('dialog.button.save')}</Button>
                         </DialogFooter>
                     </DialogContent>
                 </form>

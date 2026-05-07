@@ -5,28 +5,57 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export async function PATCH(
     request: Request,
-    { params }: { params: { id: string } }
+    context: { params: Promise<{ id: string }> }
 ) {
-    const { id } = params;
-    const body = await request.json();
+    try {
+        const { id } = await context.params;
+        const body = await request.json();
 
-    const res = await fetch(`${API_URL}/categories/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-    });
+        const res = await fetch(`${API_URL}/api/categories/${id}`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+            },
+            body: JSON.stringify(body),
+        });
 
-    const updatedItem = await res.json();
-    return NextResponse.json(updatedItem);
+        const data = await res.json();
+
+        return NextResponse.json(data, {
+            status: res.status,
+        });
+    } catch (error) {
+        return NextResponse.json(
+            { message: "Update failed" },
+            { status: 500 }
+        );
+    }
 }
 
 export async function DELETE(
-    _request: Request,
-    { params }: { params: { id: string } }
+    request: Request,
+    context: { params: Promise<{ id: string }> }
 ) {
-    const { id } = params;
-    await fetch(`${API_URL}/categories/${id}`, {
-        method: 'DELETE'
-    });
-    return NextResponse.json({ message: 'Deleted successfully' });
+    try {
+        const { id } = await context.params;
+
+        const res = await fetch(`${API_URL}/api/categories/${id}`, {
+            method: "DELETE",
+            headers: {
+                Accept: "application/json",
+            },
+        });
+
+        const data = await res.json();
+
+        return NextResponse.json(data, {
+            status: res.status,
+        });
+    } catch (error) {
+        return NextResponse.json(
+            { message: "Delete failed" },
+            { status: 500 }
+        );
+    }
 }

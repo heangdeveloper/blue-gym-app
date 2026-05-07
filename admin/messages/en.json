@@ -66,12 +66,34 @@
             "header": {
                 "name": "Name",
                 "status": "Status"
+            },
+            "body": {
+                "status": {
+                    "active": "Active",
+                    "inactive": "Inactive"
+                },
+                "actions": {
+                    "edit": "Edit",
+                    "delete": "Delete"
+                }
             }
         },
         "dialog": {
-            "title": "Add Category",
+            "addTitle": "Add Category",
+            "editTitle": "Update Category",
             "form": {
-                "name": "Name"
+                "name": "Name",
+                "status": "Status",
+                "select": {
+                    "placeholder": "Select status",
+                    "item": {
+                        "active": "Active",
+                        "inactive": "Inactive"
+                    }
+                },
+                "validation": {
+                    "name": "Name is required"
+                }
             },
             "button": {
                 "cancel": "Cancel",
@@ -82,5 +104,11 @@
     },
     "datatable": {
         "noresults": "No results."
+    },
+    "removeDialog": {
+        "title": "Are you absolutely sure?",
+        "description": "This action cannot be undone.",
+        "submit": "Yes, delete!",
+        "cancel": "No, cancel"
     }
 }

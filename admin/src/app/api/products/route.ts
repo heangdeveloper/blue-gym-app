@@ -1,24 +1,50 @@
 import { NextResponse } from "next/server";
-import '@/../envConfig'; // Load environment variables
+import '@/../envConfig';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export async function GET() {
-    const res = await fetch(`${API_URL}/api/products`, {
-        headers: { 'Accept': 'application/json' },
-    });
-    const data = await res.json();
-    console.log("API response for GET /products:", data);
-    return NextResponse.json(data);
+    try {
+        const res = await fetch(`${API_URL}/api/products`, {
+            headers: {
+                Accept: "application/json",
+            },
+            cache: "no-store",
+        });
+
+        const data = await res.json();
+
+        return NextResponse.json(data);
+    } catch (error) {
+        return NextResponse.json(
+            { message: "Failed to fetch products" },
+            { status: 500 }
+        );
+    }
 }
 
 export async function POST(request: Request) {
-    const body = await request.json();
-    const res = await fetch(`${API_URL}/products`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-    });
-    const newItem = await res.json();
-    return NextResponse.json(newItem, { status: 201 });
-} 
+    try {
+        const body = await request.json();
+
+        const res = await fetch(`${API_URL}/api/products`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+            },
+            body: JSON.stringify(body),
+        });
+
+        const data = await res.json();
+
+        return NextResponse.json(data, {
+            status: res.status,
+        });
+    } catch (error) {
+        return NextResponse.json(
+            { message: "Create failed" },
+            { status: 500 }
+        );
+    }
+}

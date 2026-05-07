@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from 'next/link'
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { navigationItems } from "@/lib/navigation";
 
 import { Icon } from "@iconify/react";
@@ -40,6 +40,12 @@ import { useTranslations } from "next-intl";
 export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const t = useTranslations("sidbar");
     const router = useRouter();
+    const pathname = usePathname();
+
+    const isChildActive = (item: any) =>
+    item.children?.some((sub: any) => pathname === sub.href);
+
+    const isActive = (href: string) => pathname === href;
 
     async function handleLogout() {
         try {
@@ -75,11 +81,17 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
                                     {item.children?.length ? (
                                         <Collapsible
                                             key={item.label}
-                                            className="group">
+                                            className="group"
+                                            defaultOpen={isChildActive(item)}>
                                             <SidebarMenuItem>
                                                 <CollapsibleTrigger
                                                     render={
-                                                        <SidebarMenuButton className="group w-full h-auto py-3 pl-8 pr-7 text-[13px] gap-4 [&>svg]:text-sidebar-foreground/50 [&>svg]:size-5 group-data-open:bg-sidebar-accent" tooltip={t(item.label)}>
+                                                        <SidebarMenuButton
+                                                            className={`group w-full h-auto py-3 pl-8 pr-7 text-[13px] gap-4 hover:bg-sidebar-accent/60
+                                                            [&>svg]:text-sidebar-foreground/50 [&>svg]:size-4
+                                                            transition-colors
+                                                            ${isChildActive(item) ? "bg-sidebar-accent/10" : ""}`}
+                                                        >
                                                             {item.icon && <Icon icon={item.icon} />}
                                                             <span className="w-full text-[13px] font-normal">{t(item.label)}</span>
                                                             <ChevronDown className="transition-transform duration-200 group-data-open:rotate-180" />
@@ -87,14 +99,21 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
                                                     }
                                                 />
                                                 <CollapsibleContent>
-                                                    <SidebarMenuSub className="m-0 p-0 gap-0 group-data-open:border-l-0">
+                                                    <SidebarMenuSub className="m-0 p-0 gap-0 group-data-open:border-l-0 group-data-[state=open]:bg-sidebar-accent/10">
                                                         {item.children.map((sub, k) => (
                                                             <SidebarMenuSubItem key={k}>
                                                                 <SidebarMenuSubButton
                                                                     className="h-auto py-2 pr-4 pl-14"
                                                                     render={
-                                                                        <Link href={sub.href}>
-                                                                            <span className="w-full px-4 text-[13px] leading-5 text-sidebar-foreground/70">{t(sub.label)}</span>
+                                                                        <Link
+                                                                            href={sub.href}
+                                                                            className={`flex items-center rounded-md transition-colors
+                                                                            ${isActive(sub.href)
+                                                                                ? "bg-sidebar-accent text-sidebar-foreground"
+                                                                                : "text-sidebar-foreground/70 hover:bg-sidebar-accent/60"
+                                                                            }`}
+                                                                        >
+                                                                            <span className="w-full px-4 text-[13px] leading-5">{t(sub.label)}</span>
                                                                         </Link>
                                                                     }
                                                                 />
@@ -105,17 +124,17 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
                                             </SidebarMenuItem>
                                         </Collapsible>
                                     ) : (
-                                    <SidebarMenuItem>
-                                        <SidebarMenuSubButton
-                                            className="w-full h-auto py-3 pl-8 pr-7 text-[13px] gap-4 [&>svg]:size-5 [&>svg]:text-sidebar-foreground/50"
-                                            render={
-                                                <Link href={item.href!}>
-                                                    {item.icon && <Icon icon={item.icon} />}
-                                                    <span className="w-full text-[13px] font-normal">{t(item.label)}</span>
-                                                </Link>
-                                            }
-                                        />
-                                    </SidebarMenuItem>
+                                        <SidebarMenuItem>
+                                            <SidebarMenuSubButton
+                                                className="w-full h-auto py-3 pl-8 pr-7 text-[13px] gap-4 [&>svg]:size-5 [&>svg]:text-sidebar-foreground/50"
+                                                render={
+                                                    <Link href={item.href!}>
+                                                        {item.icon && <Icon icon={item.icon} />}
+                                                        <span className="w-full text-[13px] font-normal">{t(item.label)}</span>
+                                                    </Link>
+                                                }
+                                            />
+                                        </SidebarMenuItem>
                                     )}
                                 </SidebarMenu>
                             ))}

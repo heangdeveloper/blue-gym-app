@@ -11,7 +11,7 @@ export async function PATCH(
         const { id } = await context.params;
         const body = await request.json();
 
-        const res = await fetch(`${API_URL}/api/products/${id}`, {
+        const res = await fetch(`${API_URL}/api/classes/${id}`, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
@@ -40,7 +40,7 @@ export async function DELETE(
     try {
         const { id } = await context.params;
 
-        const res = await fetch(`${API_URL}/api/products/${id}`, {
+        const res = await fetch(`${API_URL}/api/classes/${id}`, {
             method: "DELETE",
             headers: {
                 Accept: "application/json",

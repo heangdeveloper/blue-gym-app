@@ -1,14 +1,21 @@
 import type { Metadata } from "next";
-import "./globals.css";
+import "./css/globals.css";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import {NextIntlClientProvider} from 'next-intl';
-import { Inter } from 'next/font/google'
+import { Inter, Battambang } from "next/font/google";
 import { cookies } from "next/headers";
+import { ConfirmDialogProvider } from "./provider/ConfirmDialogProvider";
 
 const inter = Inter({
-  subsets: ['latin'],
-  display: 'swap',
+    subsets: ['latin'],
+    display: 'swap',
 })
+
+const battambang = Battambang({
+    subsets: ["khmer"],
+    weight: ["400", "700"],
+    display: "swap",
+});
 
 export const metadata: Metadata = {
     title: "Flow",
@@ -22,14 +29,20 @@ export default async function RootLayout({
 }>) {
     const cookieStore = await cookies();
     const locale = cookieStore.get("locale")?.value;
+
+    const fontClass = locale === "kh" ? battambang.className : inter.className;
     return (
         <html
             lang={locale}
-            className={inter.className}
+            className={fontClass}
         >
             <body>
                 <NextIntlClientProvider locale={locale}>
-                    <NuqsAdapter>{children}</NuqsAdapter>
+                    <NuqsAdapter>
+                        <ConfirmDialogProvider>
+                            {children}
+                        </ConfirmDialogProvider>
+                    </NuqsAdapter>
                 </NextIntlClientProvider>
             </body>
         </html>

@@ -5,7 +5,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export async function GET() {
     try {
-        const res = await fetch(`${API_URL}/api/categories`, {
+        const res = await fetch(`${API_URL}/api/walkins`, {
             headers: {
                 Accept: "application/json",
             },
@@ -17,7 +17,7 @@ export async function GET() {
         return NextResponse.json(data);
     } catch (error) {
         return NextResponse.json(
-            { message: "Failed to fetch categories" },
+            { message: "Failed to fetch walkins" },
             { status: 500 }
         );
     }
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     try {
         const body = await request.json();
 
-        const res = await fetch(`${API_URL}/api/categories`, {
+        const res = await fetch(`${API_URL}/api/walkins`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
