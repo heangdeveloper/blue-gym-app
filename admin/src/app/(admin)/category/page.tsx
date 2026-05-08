@@ -6,8 +6,6 @@ import {
     Plus,
     Pencil,
     Trash2,
-    X,
-    Download
 } from "lucide-react";
 import type { Column, ColumnDef, Table } from "@tanstack/react-table";
 import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
@@ -15,6 +13,7 @@ import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
 import { useDataTable } from "@/hooks/use-data-table";
+import { DataTableSkeleton } from "@/components/data-table/data-table-skeleton";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form";
 import * as z from "zod"
@@ -45,14 +44,6 @@ import {
     SelectValue,
     SelectGroup
 } from "@/components/ui/select"
-import {
-    ActionBar,
-    ActionBarClose,
-    ActionBarGroup,
-    ActionBarItem,
-    ActionBarSelection,
-    ActionBarSeparator
-} from "@/components/ui/action-bar";
 import {
     Status,
     StatusIndicator,
@@ -210,7 +201,7 @@ export default function Page() {
                 header: ({ column } : { column: Column<Category, unknown> }) => (
                     <DataTableColumnHeader column={column} label={t("table.header.name")}/>
                 ),
-                cell: ({ cell }) => <div>{cell.getValue<Category["name"]>()}</div>,
+                cell: ({ cell }) => <div className="w-full py-4">{cell.getValue<Category["name"]>()}</div>,
                 meta: {
                     label: "Name", 
                     placeholder: "Search names...",
@@ -218,6 +209,7 @@ export default function Page() {
                     icon: Text,
                 },
                 enableColumnFilter: true,
+                size: 200
             },
             {
                 id: "status",
@@ -278,38 +270,6 @@ export default function Page() {
         pageCount: 10,
         getRowId: (row) => row.id.toString(),
     });
-
-    function TableActionBar({ table }: { table: Table<Category> }) {
-        const rows = table.getFilteredSelectedRowModel().rows;
-        const onOpenChange = React.useCallback((open: boolean) => {
-            if (!open) {
-                table.toggleAllRowsSelected(false);
-            }
-        },[table],
-    );
-
-        return (
-            <ActionBar open={rows.length > 0} onOpenChange={onOpenChange}>
-                <ActionBarSelection>
-                    {rows.length} selected
-                    <ActionBarSeparator/>
-                    <ActionBarClose>
-                        <X />
-                    </ActionBarClose>
-                </ActionBarSelection>
-                <ActionBarGroup>
-                    <ActionBarItem variant="outline">
-                        <Download />
-                        Export
-                    </ActionBarItem>
-                    <ActionBarItem variant="destructive">
-                        <Trash2 />
-                        Delete
-                    </ActionBarItem>
-                </ActionBarGroup>
-            </ActionBar>
-        )
-    }
     
     return (
         <>
@@ -330,14 +290,9 @@ export default function Page() {
                         </div>
                     </div>
                 </div>
-                <div className="relative w-full overflow-x-auto">
-                    <DataTable
-                        table={table}
-                        actionBar={<TableActionBar table={table} 
-                    />}>
-                        <DataTableToolbar table={table}/>
-                    </DataTable>
-                </div>
+                <DataTable table={table}>
+                    <DataTableToolbar table={table}/>
+                </DataTable>
             </div>
 
             <Dialog

@@ -13,6 +13,8 @@ import {
 import { getColumnPinningStyle } from "@/lib/data-table";
 import { cn } from "@/lib/utils";
 import { useTranslations } from 'next-intl';
+import SimpleBar from 'simplebar-react';
+import 'simplebar-react/dist/simplebar.min.css';
 
 interface DataTableProps<TData> extends React.ComponentProps<"div"> {
     table: TanstackTable<TData>;
@@ -33,7 +35,7 @@ export function DataTable<TData>({
             {...props}
         >
         {children}
-            <div className="overflow-hidden rounded-2xl">
+            <SimpleBar forceVisible="x" autoHide={false}>
                 <Table>
                     <TableHeader
                         className="flex flex-col overflow-hidden min-w-full"
@@ -41,7 +43,7 @@ export function DataTable<TData>({
                         {table.getHeaderGroups().map((headerGroup) => (
                             <TableRow
                                 key={headerGroup.id}
-                                className="flex w-full border-b-0"
+                                className="relative flex w-fit h-14"
                             >
                                 {headerGroup.headers.map((header) => (
                                     <TableHead
@@ -50,7 +52,6 @@ export function DataTable<TData>({
                                         style={{
                                         ...getColumnPinningStyle({ column: header.column }),
                                         }}
-                                        className="relative flex items-center h-12 px-2.5 [&:has([role=checkbox])]:justify-center [&:has([role=checkbox])]:pr-2.5"
                                     >
                                         {header.isPlaceholder
                                         ? null
@@ -65,28 +66,28 @@ export function DataTable<TData>({
                     </TableHeader>
                     <TableBody>
                         {table.getRowModel().rows?.length ? (
-                        table.getRowModel().rows.map((row) => (
-                            <TableRow
-                                key={row.id}
-                                data-state={row.getIsSelected() && "selected"}
-                                className="flex w-auto"
-                            >
-                            {row.getVisibleCells().map((cell) => (
-                                <TableCell
-                                    key={cell.id}
-                                    style={{
-                                        ...getColumnPinningStyle({ column: cell.column }),
-                                    }}
-                                    className="relative flex items-center h-14 text-sm py-0 px-2.5 [&:has([role=checkbox])]:justify-center [&:has([role=checkbox])]:pr-2.5"
+                            table.getRowModel().rows.map((row) => (
+                                <TableRow
+                                    key={row.id}
+                                    data-state={row.getIsSelected() && "selected"}
+                                    className="relative flex w-fit"
                                 >
-                                    {flexRender(
-                                        cell.column.columnDef.cell,
-                                        cell.getContext(),
-                                    )}
-                                </TableCell>
-                            ))}
-                            </TableRow>
-                        ))
+                                {row.getVisibleCells().map((cell) => (
+                                    <TableCell
+                                        key={cell.id}
+                                        style={{
+                                            ...getColumnPinningStyle({ column: cell.column }),
+                                        }}
+                                        className="relative flex items-center h-auto text-sm py-0"
+                                    >
+                                        {flexRender(
+                                            cell.column.columnDef.cell,
+                                            cell.getContext(),
+                                        )}
+                                    </TableCell>
+                                ))}
+                                </TableRow>
+                            ))
                         ) : (
                             <TableRow>
                                 <TableCell
@@ -99,7 +100,7 @@ export function DataTable<TData>({
                         )}
                     </TableBody>
                 </Table>
-            </div>
+            </SimpleBar>
             <div className="flex flex-col gap-2.5">
                 <DataTablePagination table={table} />
                 {actionBar &&

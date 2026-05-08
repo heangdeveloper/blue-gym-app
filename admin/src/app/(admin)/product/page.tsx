@@ -10,6 +10,7 @@ import {
     Plus,
     Pencil,
     Trash2,
+    DollarSign,
     X,
     Download
 } from "lucide-react";
@@ -19,6 +20,7 @@ import { DataTableColumnHeader } from "@/components/data-table/data-table-column
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
 import { useDataTable } from "@/hooks/use-data-table";
 import { useRouter } from "next/navigation";
+import { formatCurrency } from "@/lib/format-currency";
 
 import { ActionBar, ActionBarClose, ActionBarGroup, ActionBarItem, ActionBarSelection, ActionBarSeparator } from "@/components/ui/action-bar";
 import { Checkbox } from "@/components/ui/checkbox"
@@ -53,13 +55,14 @@ export default function Page() {
     React.useEffect(() => {
         async function fetchProducts() {
             try {
-                const res = await fetch("/api/products", {
+                const res = await fetch(`api/products`, {
                     headers: {
                         Accept: "application/json",
                     },
                 });
                 const json = await res.json();
-                setProducts(json.data);
+                console.log(json)
+                setProducts(json.data.map((item: any) => item.data ?? item));
             } catch (err) {
                 console.error("Failed to fetch products:", err);
             }
@@ -77,21 +80,49 @@ export default function Page() {
 
     const columns = React.useMemo<ColumnDef<Product>[]>(() => [
         {
+            id: "select",
+            header: ({ table }) => (
+                <Checkbox
+                    checked={
+                        table.getIsAllPageRowsSelected() ||
+                        (table.getIsSomePageRowsSelected())
+                    }
+                    onCheckedChange={(value) => 
+                        table.toggleAllPageRowsSelected(!!value)
+                    }
+                    aria-label="Select all"
+                />
+            ),
+            cell: ({ row }) => (
+                <Checkbox
+                    checked={row.getIsSelected()}
+                    onCheckedChange={(value) => row.toggleSelected(!!value)}
+                    aria-label="Select row"
+                />
+            ),
+            size: 50,
+            enableSorting: false,
+            enableHiding: false
+        },
+        {
             id: "products",
             accessorKey: "products",
             header: ({ column } : { column: Column<Product, unknown> }) => (
                 <DataTableColumnHeader column={column} label="Products"/>
             ),
-            cell: ({ cell }) => {
-                <div>
-                    <Avatar className="h-16 w-16 rounded-3xl">
-                        <AvatarImage className="rounded-3xl" src="https://niceadmin-mui-nextjs-main.vercel.app/images/products/s5.jpg" />
-                    </Avatar>
-                    <div className="grid flex-1 text-left text-sm leading-tight">
-                        <span className="text-sm font-semibold">{cell.getValue<Product["name"]>()}</span>
-                        <span className="text-sm font-normal">{cell.getValue<Product["category"]["name"]>()}</span>
+            cell: ({ row }) => {
+                const item = row.original;
+                return (
+                    <div className="flex items-center w-full gap-3.5 py-4">
+                        <Avatar className="h-16 w-16 rounded-xl">
+                            <AvatarImage className="rounded-xl" src="https://api-prod-minimal-v700.pages.dev/assets/images/m-product/product-1.webp" />
+                        </Avatar>
+                        <div className="flex-[1 1 auto] min-w-0 m-0">
+                            <span className="block m-0 text-sm font-semibold leading-5.5 text-ellipsis whitespace-nowrap overflow-hidden">{item.name}</span>
+                            <span className="block m-0 text-sm font-normal text-foreground/50">{item.category?.name}</span>
+                        </div>
                     </div>
-                </div>
+                )
             },
             meta: {
                 label: "Products", 
@@ -100,6 +131,7 @@ export default function Page() {
                 icon: Text,
             },
             enableColumnFilter: true,
+            size: 360,
         },
         {
             id: "created_at",
@@ -129,7 +161,11 @@ export default function Page() {
             header: ({ column } : { column: Column<Product, unknown> }) => (
                 <DataTableColumnHeader column={column} label="Cost Price"/>
             ),
-            cell: ({ cell }) => <div>{cell.getValue<Product["cost_price"]>()}</div>,
+            cell: ({ row }) => (
+                <div className="font-medium">
+                    {formatCurrency(row.getValue("cost_price"))}
+                </div>
+            ),
             meta: {
                 label: "Cost Price", 
             },
@@ -140,7 +176,11 @@ export default function Page() {
             header: ({ column } : { column: Column<Product, unknown> }) => (
                 <DataTableColumnHeader column={column} label="Sell Price"/>
             ),
-            cell: ({ cell }) => <div>{cell.getValue<Product["sell_price"]>()}</div>,
+            cell: ({ row }) => (
+                <div className="font-medium">
+                    {formatCurrency(row.getValue("sell_price"))}
+                </div>
+            ),
             meta: {
                 label: "Sell Price", 
             },
@@ -162,18 +202,8 @@ export default function Page() {
                 const item = row.original;
                 return (
                     <div className="flex items-center gap-1">
-                        <Button
-                            size="icon"
-                            variant="ghost"
-                        >
-                            <Pencil />
-                        </Button>
-                        <Button
-                            size="icon"
-                            variant="destructive"
-                        >
-                            <Trash2 />
-                        </Button>
+                        <Button size="sm"><Pencil className="h-5 w-5"/>Edit</Button>
+                        <Button size="sm" variant="destructive"><Trash2 className="h-5 w-5"/>Delete</Button>
                     </div>
                 )
             }
@@ -184,10 +214,6 @@ export default function Page() {
         data: filteredData,
         columns,
         pageCount: Math.ceil(filteredData.length / 10),
-        initialState: {
-            sorting: [{ id: "name", desc: true }],
-            columnPinning: { right: ["actions"] },
-        },
         getRowId: (row) => row.id.toString(),
     });
 

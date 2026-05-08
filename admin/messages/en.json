@@ -102,6 +102,116 @@
             }
         }
     },
+    "PackagePage": {
+        "header": {
+            "title": "Packages",
+            "subtitle": "Manage Packages.",
+            "addButton": "Add Package"
+        },
+        "table": {
+            "header": {
+                "name": "Name",
+                "duration": "Duration",
+                "price": "Price",
+                "description": "Description",
+                "status": "Status"
+            },
+            "body": {
+                "status": {
+                    "active": "Active",
+                    "inactive": "Inactive"
+                },
+                "actions": {
+                    "edit": "Edit",
+                    "delete": "Delete"
+                }
+            }
+        },
+        "dialog": {
+            "addTitle": "Add Package",
+            "editTitle": "Update Package",
+            "form": {
+                "name": "Name",
+                "status": "Status",
+                "select": {
+                    "placeholder": "Select status",
+                    "item": {
+                        "active": "Active",
+                        "inactive": "Inactive"
+                    }
+                },
+                "validation": {
+                    "name": {
+                        "min": "Price is required"
+                    },
+                    "duration": {
+                        "min": "Duration is required",
+                        "refine": "Duration must be a valid number greater than 0"
+                    },
+                    "price": {
+                        "min": "Price is required",
+                        "refine": "Price must be a valid number and cannot be negative"
+                    },
+                    "description": {
+                        "max": "Description must be at most 200 characters."
+                    }
+                }
+            },
+            "button": {
+                "cancel": "Cancel",
+                "save": "Save changes",
+                "update": "Update"
+            }
+        }
+    },
+    "PermissionPage": {
+        "header": {
+            "title": "Permissions",
+            "subtitle": "Manage Permissions.",
+            "addButton": "Add Permission"
+        },
+        "table": {
+            "header": {
+                "name": "Name",
+                "assigned_to": "Assigned To",
+                "created_date": "Created Date"
+            },
+            "body": {
+                "status": {
+                    "active": "Active",
+                    "inactive": "Inactive"
+                },
+                "actions": {
+                    "edit": "Edit",
+                    "delete": "Delete"
+                }
+            }
+        },
+        "dialog": {
+            "addTitle": "Add Permission",
+            "editTitle": "Update Permission",
+            "form": {
+                "name": "Name",
+                "select": {
+                    "placeholder": "Select status",
+                    "item": {
+                        "active": "Active",
+                        "inactive": "Inactive"
+                    }
+                },
+                "validation": {
+                    "name": {
+                        "min": "Permission is required"
+                    }
+                }
+            },
+            "button": {
+                "cancel": "Cancel",
+                "save": "Save changes",
+                "update": "Update"
+            }
+        }
+    },
     "datatable": {
         "noresults": "No results."
     },

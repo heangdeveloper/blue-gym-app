@@ -5,7 +5,7 @@ import type { NextRequest } from 'next/server'
 const protectedRoutes = ['/dashboard']
 const publicRoutes = ['/login']
 
-export default async function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
     // 2. Check if the current route is protected or public
     const path = request.nextUrl.pathname
     const isProtectedRoute = protectedRoutes.includes(path)
@@ -28,5 +28,5 @@ export default async function proxy(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ["/dashboard/:path*", "/login"],
+    matcher: ["/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)"],
 };

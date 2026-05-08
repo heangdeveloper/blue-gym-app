@@ -1,48 +1,55 @@
 "use client";
 
 import * as React from "react";
-import type { Column, ColumnDef } from "@tanstack/react-table";
 import {
-    CheckCircle,
-    CheckCircle2,
     Text,
-    XCircle,
     Plus,
     Pencil,
     Trash2,
-    X,
-    Download
 } from "lucide-react";
+import type { Column, ColumnDef, Table } from "@tanstack/react-table";
 import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
 import { useDataTable } from "@/hooks/use-data-table";
-
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form";
 import * as z from "zod"
 
+import { useTranslations } from 'next-intl';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
+import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogDescription,
-    DialogFooter,
-    DialogClose,
-} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea"
 import {
     Field,
     FieldGroup,
     FieldLabel,
     FieldError
 } from "@/components/ui/field"
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+    DialogClose,
+} from "@/components/ui/dialog";
+import {
+    Status,
+    StatusIndicator,
+    StatusLabel,
+} from "@/components/ui/status";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    SelectGroup
+} from "@/components/ui/select"
+import { useConfirm } from "@/app/provider/ConfirmDialogProvider";
 
 interface Package {
     id: number;
@@ -52,110 +59,88 @@ interface Package {
     description: string;
     status: "active" | "inactive";
 }
-
-const formSchema = z.object({
-    name: z
-        .string()
-        .min(5, "Package name must be at least 5 characters.")
-        .max(32, "Package name must be at most 32 characters."),
-    duration: z
-        .string()
-        .min(0),
-    price: z
-        .string()
-        .min(0),
-    description: z
-        .string()
-        .max(200),
-    status: z
-        .enum(["active", "inactive"])
-});
+const createFormSchema = (t: any) => 
+    z.object({
+        name: z
+            .string()
+            .trim()
+            .min(1, { message: t('dialog.form.validation.name.min') }),
+        duration: z
+            .string({
+                error: t('dialog.form.validation.duration.min')
+            }),
+        price: z
+            .string({
+                error: t('dialog.form.validation.price.min') 
+            }),
+        description: z
+            .string()
+            .trim()
+            .max(200, { message: t('dialog.form.validation.description.max') })
+            .optional()
+            .or(z.literal("")),
+        status: z.enum(["active", "inactive"]),
+    });
 
 export default function Page() {
+    const t = useTranslations('PackagePage');
+    const formSchema = React.useMemo(() => createFormSchema(t), [t]);
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             name: "",
-            duration: "0",
-            price: "0",
+            duration: "",
+            price: "",
             description: "",
             status: "active",
-        }
+        },
     })
-
     const [packages, setPackages] = React.useState<Package[]>([]);
-    const [deletingId, setDeletingId] = React.useState<number | null>(null);
-    const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
     const [openAddDialog, setOpenAddDialog] = React.useState(false);
     const [selectedId, setSelectedId] = React.useState<number | null>(null);
-
     const [name] = useQueryState("name", parseAsString.withDefault(""));
     const [status] = useQueryState("status", parseAsArrayOf(parseAsString).withDefault([]));
+    const confrim = useConfirm();
 
-    // ✅ FETCH DATA
     React.useEffect(() => {
         async function fetchPackages() {
             try {
-                const res = await fetch("http://127.0.0.1:8000/api/packages", {
+                const res = await fetch(`api/package`, {
                     headers: {
                         Accept: "application/json",
                     },
                 });
                 const json = await res.json();
-                setPackages(json.data);
+                setPackages(json.data.map((item: any) => item.data ?? item));
             } catch (err) {
-                console.error("Failed to fetch packages:", err);
+                console.error("Failed to fetch package:", err);
             }
         }
         fetchPackages();
     }, []);
 
-    // ✅ DELETE DATA
-    const confirmDelete = async () => {
-        if (!selectedId) return;
-
-        setDeletingId(selectedId);
-
-        try {
-            await fetch(`http://127.0.0.1:8000/api/packages/${selectedId}`, {
-                method: "DELETE",
-                headers: {
-                    Accept: "application/json",
-                },
-            });
-            setPackages((prev) => prev.filter((item) => item.id !== selectedId));
-
-        } catch (err) {
-            console.error("Delete failed:", err);
-        } finally {
-            setDeletingId(null);
-            setOpenDeleteDialog(false);
-            setSelectedId(null);
-        }
-    };
-
-    // ✅ ADD DATA
     async function onSubmit(data: z.infer<typeof formSchema>) {
         try {
             if (selectedId !== null) {
-                // UPDATE
-                const res = await fetch(`http://127.0.0.1:8000/api/packages/${selectedId}`, {
-                    method: "PUT",
+                const res = await fetch(`api/package/${selectedId}`, {
+                    method: "PATCH",
                     headers: {
                         "Content-Type": "application/json",
                         Accept: "application/json",
                     },
                     body: JSON.stringify(data)
                 })
-
-                const updatedPackage = await res.json();
+                const updatedItem = await res.json();
 
                 setPackages((prev) =>
-                    prev.map((pkg) => (pkg.id === selectedId ? updatedPackage.data : pkg))
+                    prev.map((item) =>
+                        item.id === Number(selectedId)
+                            ? updatedItem.data.data ?? updatedItem.data
+                            : item
+                    )
                 );
             } else {
-                // ADD
-                const res = await fetch(`http://127.0.0.1:8000/api/packages`, {
+                const res = await fetch("api/package", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -164,18 +149,35 @@ export default function Page() {
                     body: JSON.stringify(data)
                 })
 
-                const newPackage = await res.json();
+                const newItem = await res.json();
+                console.log(newItem)
 
-                setPackages((prev) => [...prev, newPackage.data]);
+                setPackages((prev) => [...prev, newItem.data]);
             }
-
             setOpenAddDialog(false);
             setSelectedId(null);
-            form.reset(); // reset form and validation
-        } catch (err) {
+            form.reset();
+        } catch(err) {
             console.error("Failed to save package:", err);
-        } 
+        }
     }
+
+    const handleDelete = async (id: number) => {
+        const ok = await confrim()
+        if (!ok) return;
+
+        try {
+            await fetch(`/api/package/${id}`, {
+                method: "DELETE",
+            });
+
+            setPackages((prev) =>
+                prev.filter((item) => item.id !== id)
+            );
+        } catch (err) {
+            console.error("Delete failed:", err);
+        }
+    };
 
     const filteredData = React.useMemo(() => {
         return packages.filter((item) => {
@@ -194,7 +196,7 @@ export default function Page() {
                     <Checkbox
                         checked={
                             table.getIsAllPageRowsSelected() ||
-                            (table.getIsSomePageRowsSelected() && "indeterminate")
+                            (table.getIsSomePageRowsSelected())
                         }
                         onCheckedChange={(value) => 
                             table.toggleAllPageRowsSelected(!!value)
@@ -209,7 +211,7 @@ export default function Page() {
                         aria-label="Select row"
                     />
                 ),
-                size: 32,
+                size: 50,
                 enableSorting: false,
                 enableHiding: false
             },
@@ -217,9 +219,9 @@ export default function Page() {
                 id: "name",
                 accessorKey: "name",
                 header: ({ column } : { column: Column<Package, unknown> }) => (
-                    <DataTableColumnHeader column={column} label="Name"/>
+                    <DataTableColumnHeader column={column} label={t("table.header.name")}/>
                 ),
-                cell: ({ cell }) => <div>{cell.getValue<Package["name"]>()}</div>,
+                cell: ({ cell }) => <div className="w-full py-4">{cell.getValue<Package["name"]>()}</div>,
                 meta: {
                     label: "Name", 
                     placeholder: "Search names...",
@@ -227,83 +229,56 @@ export default function Page() {
                     icon: Text,
                 },
                 enableColumnFilter: true,
-            },
-            {
-                id: "duration",
-                accessorKey: "duration",
-                header: ({ column } : { column: Column<Package, unknown> }) => (
-                    <DataTableColumnHeader column={column} label="Duration"/>
-                ),
-                cell: ({ cell }) => <div>{cell.getValue<Package["duration"]>()}</div>,
-                meta: {
-                    label: "Duration", 
-                },
+                size: 200
             },
             {
                 id: "price",
                 accessorKey: "price",
                 header: ({ column } : { column: Column<Package, unknown> }) => (
-                    <DataTableColumnHeader column={column} label="Price"/>
+                    <DataTableColumnHeader column={column} label={t("table.header.price")}/>
                 ),
-                cell: ({ cell }) => <div>{cell.getValue<Package["price"]>()}</div>,
+                cell: ({ cell }) => <div className="w-full py-4">{cell.getValue<Package["price"]>()}</div>,
                 meta: {
                     label: "Price", 
-                },
-            },
-            {
-                id: "description",
-                accessorKey: "description",
-                header: ({ column } : { column: Column<Package, unknown> }) => (
-                    <DataTableColumnHeader column={column} label="Description"/>
-                ),
-                cell: ({ cell }) => {
-                    const value = cell.getValue<Package["description"]>();
-                    return <div>{value ? value : "-"}</div>;
-                },
-                meta: {
-                    label: "Description", 
                 },
             },
             {
                 id: "status",
                 accessorKey: "status",
                 header: ({ column } : { column: Column<Package, unknown> }) => (
-                    <DataTableColumnHeader column={column} label="Status"/>
+                    <DataTableColumnHeader column={column} label={t("table.header.status")}/>
                 ),
                 cell: ({ cell }) => {
                     const status = cell.getValue<Package["status"]>();
-                    const Icon = status === "active" ? CheckCircle2 : XCircle;
-                    const statusClass = status === "active"
-                        ? "bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300"
-                        : "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300";
-
+                    const statusClass = status === "active" ? "success" : "error";
                     return (
-                        <Badge variant="outline" className={`capitalize gap-1 ${statusClass}`}>
-                            <Icon />
-                            {status}
-                        </Badge>
+                        <Status variant={statusClass}>
+                            <StatusIndicator />
+                            <StatusLabel>
+                                {status === "active"
+                                    ? t("table.body.status.active")
+                                    : t("table.body.status.inactive")}
+                            </StatusLabel>
+                        </Status>
                     );
                 },
                 meta: {
                     label: "Status",
                     variant: "multiSelect",
                     options: [
-                        { label: "Active", value: "active", icon: CheckCircle },
-                        { label: "Inactive", value: "inactive", icon: XCircle },
+                        { label: "Active", value: "active" },
+                        { label: "Inactive", value: "inactive" },
                     ],
                 },
                 enableColumnFilter: true,
             },
             {
-            id: "actions",
-            cell: ({ row }) => {
-                const item = row.original;
-                return (
-                    <div className="flex items-center gap-1">
-                        <Button
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => {
+                id: "actions",
+                cell: ({ row }) => {
+                    const item = row.original;
+                    return (
+                        <div className="flex items-center gap-1">
+                            <Button size="sm" onClick={() => {
                                 setSelectedId(item.id);
                                 form.reset({
                                     name: item.name,
@@ -311,37 +286,21 @@ export default function Page() {
                                     price: item.price,
                                     description: item.description,
                                     status: item.status,
-                                }); // prefill form with selected item
+                                });
                                 setOpenAddDialog(true);
-                            }}
-                        >
-                            <Pencil />
-                        </Button>
-                        <Button
-                            size="icon"
-                            variant="destructive"
-                            onClick={() => {
-                                setSelectedId(item.id);
-                                setOpenDeleteDialog(true);
-                            }}
-                        >
-                            <Trash2 />
-                        </Button>
-                    </div>
-                )
+                            }}><Pencil className="h-5 w-5"/>{t('table.body.actions.edit')}</Button>
+                            <Button size="sm" variant="destructive" onClick={() => handleDelete(item.id)}><Trash2 className="h-5 w-5"/>{t('table.body.actions.delete')}</Button>
+                        </div>
+                    )
+                },
             }
-        }
-        ],[],
+        ],[form],
     )
 
     const { table } = useDataTable({
         data: filteredData,
         columns,
         pageCount: Math.ceil(filteredData.length / 10),
-        initialState: {
-            sorting: [{ id: "name", desc: true }],
-            columnPinning: { right: ["actions"] },
-        },
         getRowId: (row) => row.id.toString(),
     });
 
@@ -351,52 +310,27 @@ export default function Page() {
                 <div className="mb-6">
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                         <div className="space-y-1">
-                            <h2 className="text-2xl font-bold tracking-tight">Packages</h2>
-                            <p className="mt-1 text-sm text-muted-foreground">Manage pricing packages for gym customers.</p>
+                            <h2 className="text-2xl font-bold tracking-tight">{t('header.title')}</h2>
+                            <p className="mt-1 text-sm text-muted-foreground">{t('header.subtitle')}</p>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
-                            <Button
-                                onClick={() => {
-                                    setSelectedId(null); // make sure no package is selected
-                                    form.reset({         // reset all fields to default values
-                                        name: "",
-                                        duration: "0",
-                                        price: "0",
-                                        description: "",
-                                        status: "active",
-                                    });
-                                    setOpenAddDialog(true);
-                                }}
-                            ><Plus className="h-5 w-5"/>Add Package</Button>
+                            <Button onClick={() => {
+                                form.reset({
+                                    name: "",
+                                    duration: "",
+                                    price: "",
+                                    description: "",
+                                    status: "active",
+                                })
+                                setOpenAddDialog(true)
+                            }}><Plus className="h-5 w-5"/>{t('header.addButton')}</Button>
                         </div>
                     </div>
                 </div>
-                <div className="relative w-full overflow-x-auto">
-                        <DataTable table={table}>
-                            <DataTableToolbar table={table} />
-                        </DataTable>
-                </div>
+                <DataTable table={table}>
+                    <DataTableToolbar table={table} />
+                </DataTable>
             </div>
-            <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Are you absolutely sure?</DialogTitle>
-                        <DialogDescription>
-                            This action cannot be undone. This will permanently delete your data from our servers.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter>
-                        <DialogClose render={<Button variant="outline">Cancel</Button>} />
-                        <Button
-                            variant="destructive"
-                            onClick={confirmDelete}
-                            disabled={deletingId !== null}
-                        >
-                            {deletingId ? "Deleting..." : "Delete"}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
 
             <Dialog
                 open={openAddDialog}
@@ -411,7 +345,7 @@ export default function Page() {
                 <form id="form-package" onSubmit={form.handleSubmit(onSubmit)} autoComplete="off">
                     <DialogContent>
                         <DialogHeader>
-                            <DialogTitle>{selectedId ? "Update Package" : "Add Package"}</DialogTitle>
+                            <DialogTitle>{selectedId ? t('dialog.editTitle') : t('dialog.addTitle')}</DialogTitle>
                         </DialogHeader>
                         <FieldGroup>
                             <Controller
@@ -420,7 +354,7 @@ export default function Page() {
                                 render={({ field, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid}>
                                         <FieldLabel htmlFor="form-name">
-                                            Name
+                                            {t('dialog.form.name')}
                                             <span className="text-destructive">*</span>
                                         </FieldLabel>
                                         <Input
@@ -441,7 +375,7 @@ export default function Page() {
                                 render={({ field, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid}>
                                         <FieldLabel htmlFor="form-duration">
-                                            Duration
+                                            {t('dialog.form.duration')}
                                             <span className="text-destructive">*</span>
                                         </FieldLabel>
                                         <Input
@@ -462,7 +396,7 @@ export default function Page() {
                                 render={({ field, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid}>
                                         <FieldLabel htmlFor="form-price">
-                                            Price
+                                            {t('dialog.form.price')}
                                             <span className="text-destructive">*</span>
                                         </FieldLabel>
                                         <Input
@@ -483,7 +417,7 @@ export default function Page() {
                                 render={({ field, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid}>
                                         <FieldLabel htmlFor="form-description">
-                                            Description
+                                            {t('dialog.form.description')}
                                         </FieldLabel>
                                         <Textarea
                                             {...field}
@@ -497,29 +431,41 @@ export default function Page() {
                                     </Field>
                                 )}
                             />
-                            {
-                                selectedId ?
-                                    <Controller
-                                        name="status"
-                                        control={form.control}
-                                        render={({ field }) => (
-                                            <Field>
-                                                <FieldLabel>Status</FieldLabel>
-                                                <select {...field} className="w-full p-2 border rounded">
-                                                    <option value="active">Active</option>
-                                                    <option value="inactive">Inactive</option>
-                                                </select>
-                                            </Field>
+                            <Controller
+                                name="status"
+                                control={form.control}
+                                render={({ field, fieldState }) => (
+                                    <Field data-invalid={fieldState.invalid}>
+                                        <FieldLabel htmlFor="form-category-status">
+                                            {t('dialog.form.status')}
+                                            <span className="text-destructive">*</span>
+                                        </FieldLabel>
+                                        <Select
+                                            value={field.value ?? ""}
+                                            defaultValue={field.value}
+                                            onValueChange={field.onChange}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder={t('dialog.form.select.placeholder')} />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectGroup>
+                                                    <SelectItem value="active">{t('dialog.form.select.item.active')}</SelectItem>
+                                                    <SelectItem value="inactive">{t('dialog.form.select.item.inactive')}</SelectItem>
+                                                </SelectGroup>
+                                            </SelectContent>
+                                        </Select>
+                                        {fieldState.invalid && (
+                                            <FieldError errors={[fieldState.error]} />
                                         )}
-                                    />
-                                :
-                                    ""
-                            }
+                                    </Field>
+                                )}
+                            />
                             
                         </FieldGroup>
                         <DialogFooter>
-                            <DialogClose render={<Button variant="outline">Cancel</Button>} />
-                            <Button type="submit" form="form-package"> {selectedId ? "Update" : "Save changes"}</Button>
+                            <DialogClose render={<Button variant="outline">{t('dialog.button.cancel')}</Button>} />
+                            <Button type="submit" form="form-package">{selectedId ? t('dialog.button.update') : t('dialog.button.save')}</Button>
                         </DialogFooter>
                     </DialogContent>
                 </form>

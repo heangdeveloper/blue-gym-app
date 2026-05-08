@@ -1,48 +1,54 @@
 "use client";
 
 import * as React from "react";
-import type { Column, ColumnDef } from "@tanstack/react-table";
 import {
-    CheckCircle,
-    CheckCircle2,
     Text,
-    XCircle,
     Plus,
     Pencil,
     Trash2,
-    X,
-    Download
 } from "lucide-react";
+import type { Column, ColumnDef, Table } from "@tanstack/react-table";
 import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
 import { useDataTable } from "@/hooks/use-data-table";
-
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form";
 import * as z from "zod"
 
+import { useTranslations } from 'next-intl';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
+import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogDescription,
-    DialogFooter,
-    DialogClose,
-} from "@/components/ui/dialog";
 import {
     Field,
     FieldGroup,
     FieldLabel,
     FieldError
 } from "@/components/ui/field"
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+    DialogClose,
+} from "@/components/ui/dialog";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    SelectGroup
+} from "@/components/ui/select"
+import {
+    Status,
+    StatusIndicator,
+    StatusLabel,
+} from "@/components/ui/status";
+import { useConfirm } from "@/app/provider/ConfirmDialogProvider";
 
 interface Permission {
     id: number;
@@ -54,6 +60,7 @@ const formSchema = z.object({
 });
 
 export default function Page() {
+    const t = useTranslations('PermissionPage');
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -64,19 +71,20 @@ export default function Page() {
     const [openAddDialog, setOpenAddDialog] = React.useState(false);
     const [selectedId, setSelectedId] = React.useState<number | null>(null);
     const [name] = useQueryState("name", parseAsString.withDefault(""));
+    const confrim = useConfirm();
 
     React.useEffect(() => {
         async function fetchPermissions() {
             try {
-                const res = await fetch("api/auth/permissions", {
+                const res = await fetch(`api/auth/permissions`, {
                     headers: {
                         Accept: "application/json",
                     },
                 });
                 const json = await res.json();
-                setPermissions(json.data);
+                setPermissions(json.data.map((item: any) => item.data ?? item));
             } catch (err) {
-                console.error("Failed to fetch permissions:", err);
+                console.error("Failed to fetch:", err);
             }
         }
         fetchPermissions();
@@ -84,89 +92,113 @@ export default function Page() {
 
     async function onSubmit(data: z.infer<typeof formSchema>) {
         try {
+            if (selectedId !== null) {
+                const res = await fetch(`api/auth/permissions/${selectedId}`, {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Accept: "application/json",
+                    },
+                    body: JSON.stringify(data)
+                })
+                const updatedItem = await res.json();
 
-        } catch (err) {
-            console.error("Failed to save permission:", err);
-        } 
+                setPermissions((prev) =>
+                    prev.map((item) =>
+                        item.id === Number(selectedId)
+                            ? updatedItem.data.data ?? updatedItem.data
+                            : item
+                    )
+                );
+            } else {
+                const res = await fetch("api/auth/permissions", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Accept: "application/json",
+                    },
+                    body: JSON.stringify(data)
+                })
+
+                const newItem = await res.json();
+                console.log(newItem)
+
+                setPermissions((prev) => [...prev, newItem.data]);
+            }
+            setOpenAddDialog(false);
+            setSelectedId(null);
+            form.reset();
+        } catch(err) {
+            console.error("Failed to save category:", err);
+        }
     }
+    
+    const handleDelete = async (id: number) => {
+        const ok = await confrim()
+        if (!ok) return;
+
+        try {
+            await fetch(`api/auth/permissions/${id}`, {
+                method: "DELETE",
+            });
+
+            setPermissions((prev) =>
+                prev.filter((item) => item.id !== id)
+            );
+        } catch (err) {
+            console.error("Delete failed:", err);
+        }
+    };
 
     const filteredData = React.useMemo(() => {
         return permissions.filter((item) => {
             const matchesName = name === "" || item.name.toLowerCase().includes(name.toLowerCase());
-
             return matchesName;
         })
     }, [permissions, name]);
 
     const columns = React.useMemo<ColumnDef<Permission>[]>(() => [
         {
-            id: "select",
-            header: ({ table }) => (
-                <Checkbox
-                    checked={table.getIsAllPageRowsSelected()}
-                    onCheckedChange={(value) => 
-                        table.toggleAllPageRowsSelected(!!value)
-                    }
-                    aria-label="Select all"
-                />
-            ),
-            cell: ({ row }) => (
-                <Checkbox
-                    checked={row.getIsSelected()}
-                    onCheckedChange={(value) => row.toggleSelected(!!value)}
-                    aria-label="Select row"
-                />
-            ),
-            size: 32,
-            enableSorting: false,
-            enableHiding: false
-        },
-        {
             id: "name",
             accessorKey: "name",
             header: ({ column } : { column: Column<Permission, unknown> }) => (
-                <DataTableColumnHeader column={column} label="Name"/>
+                <DataTableColumnHeader column={column} label={t("table.header.name")}/>
             ),
             cell: ({ cell }) => <div>{cell.getValue<Permission["name"]>()}</div>,
             meta: {
                 label: "Name", 
-                placeholder: "Search names...",
+                placeholder: "Search Permission...",
                 variant: "text",
                 icon: Text,
             },
             enableColumnFilter: true,
         },
         {
-            id: "actions",
+            id: "assigned_to",
+            accessorKey: "assigned_to",
             header: ({ column } : { column: Column<Permission, unknown> }) => (
-                <DataTableColumnHeader column={column} label="Actions"/>
+                <DataTableColumnHeader column={column} label={t("table.header.assigned_to")}/>
             ),
+            cell: ({ cell }) => <div></div>,
+            enableColumnFilter: true,
+        },
+        {
+            id: "created_date",
+            accessorKey: "created_date",
+            header: ({ column } : { column: Column<Permission, unknown> }) => (
+                <DataTableColumnHeader column={column} label={t("table.header.created_date")}/>
+            ),
+            cell: ({ cell }) => <div></div>,
+            enableColumnFilter: true,
+        },
+        {
+            id: "actions",
             cell: ({ row }) => {
                 const item = row.original;
                 return (
                     <div className="flex items-center gap-1">
-                        <Button
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => {
-                                setSelectedId(item.id);
-                                form.reset({
-                                    name: item.name,
-                                });
-                                setOpenAddDialog(true);
-                            }}
-                        >
-                            <Pencil />
-                        </Button>
-                        <Button
-                            size="icon"
-                            variant="destructive"
-                            onClick={() => {
-                                setSelectedId(item.id);
-                            }}
-                        >
-                            <Trash2 />
-                        </Button>
+                        <Button size="sm"><Pencil className="h-5 w-5"/>{t('table.body.actions.edit')}</Button>
+                        <Button size="sm" variant="destructive" onClick={() => handleDelete(item.id)}><Trash2 className="h-5 w-5"/>{t('table.body.actions.delete')}</Button>
                     </div>
                 )
             }
@@ -177,10 +209,6 @@ export default function Page() {
         data: filteredData,
         columns,
         pageCount: 1,
-        initialState: {
-            sorting: [{ id: "name", desc: true }],
-            columnPinning: { right: ["actions"] },
-        },
         getRowId: (row) => row.id.toString(),
     });
 
@@ -190,68 +218,18 @@ export default function Page() {
                 <div className="mb-6">
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                         <div className="space-y-1">
-                            <h2 className="text-2xl font-bold tracking-tight">Permissions</h2>
-                            <p className="mt-1 text-sm text-muted-foreground">Manage user permissions.</p>
+                            <h2 className="text-2xl font-bold tracking-tight">{t('header.title')}</h2>
+                            <p className="mt-1 text-sm text-muted-foreground">{t('header.subtitle')}</p>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
-                            <Button><Plus className="h-5 w-5"/>Add Permission</Button>
+                            <Button><Plus className="h-5 w-5"/>{t('header.addButton')}</Button>
                         </div>
                     </div>
                 </div>
-                <div className="relative w-full overflow-x-auto">
-                    <DataTable
-                        table={table}
-                    >
-                        <DataTableToolbar table={table} />
-                    </DataTable>
-                </div>
+                <DataTable table={table}>
+                    <DataTableToolbar table={table} />
+                </DataTable>
             </div>
-
-            {/* <Dialog
-                open={openAddDialog}
-                onOpenChange={(open) => {
-                    setOpenAddDialog(open);
-                    if (!open) {
-                        form.reset();
-                        setSelectedId(null);
-                    }
-                }}
-            >
-                <form id="form-package" onSubmit={form.handleSubmit(onSubmit)} autoComplete="off">
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>{selectedId ? "Update Package" : "Add Package"}</DialogTitle>
-                        </DialogHeader>
-                        <FieldGroup>
-                            <Controller
-                                name="name"
-                                control={form.control}
-                                render={({ field, fieldState }) => (
-                                    <Field data-invalid={fieldState.invalid}>
-                                        <FieldLabel htmlFor="form-name">
-                                            Name
-                                            <span className="text-destructive">*</span>
-                                        </FieldLabel>
-                                        <Input
-                                            {...field}
-                                            id="form-name"
-                                            aria-invalid={fieldState.invalid}
-                                            autoComplete="off"
-                                        />
-                                        {fieldState.invalid && (
-                                            <FieldError errors={[fieldState.error]} />
-                                        )}
-                                    </Field>
-                                )}
-                            />
-                        </FieldGroup>
-                    </DialogContent>
-                    <DialogFooter>
-                        <DialogClose render={<Button variant="outline">Cancel</Button>} />
-                        <Button type="submit" form="form-package"> {selectedId ? "Update" : "Save changes"}</Button>
-                    </DialogFooter>
-                </form>
-            </Dialog> */}
         </>
     )
 }
