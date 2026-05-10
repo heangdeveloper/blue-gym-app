@@ -52,6 +52,7 @@ export const navigationItems: NavGroup[] = [
                     { label: "management.item.gym.subMenu.package", href: "/package" },
                     { label: "management.item.gym.subMenu.trainer", href: "/trainer" },
                     { label: "management.item.gym.subMenu.classe", href: "/classes" },
+                    { label: "management.item.gym.subMenu.branch", href: "/branch" },
                 ],
             },
             {

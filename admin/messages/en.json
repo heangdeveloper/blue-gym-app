@@ -34,7 +34,8 @@
                     "subMenu": {
                         "package": "Package",
                         "trainer": "Trainer",
-                        "classe": "Class"
+                        "classe": "Class",
+                        "branch": "Branch"
                     }
                 },
                 "authentication": {
