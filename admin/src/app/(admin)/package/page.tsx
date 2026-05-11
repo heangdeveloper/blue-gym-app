@@ -191,31 +191,6 @@ export default function Page() {
     const columns = React.useMemo<ColumnDef<Package>[]>(
         () => [
             {
-                id: "select",
-                header: ({ table }) => (
-                    <Checkbox
-                        checked={
-                            table.getIsAllPageRowsSelected() ||
-                            (table.getIsSomePageRowsSelected())
-                        }
-                        onCheckedChange={(value) => 
-                            table.toggleAllPageRowsSelected(!!value)
-                        }
-                        aria-label="Select all"
-                    />
-                ),
-                cell: ({ row }) => (
-                    <Checkbox
-                        checked={row.getIsSelected()}
-                        onCheckedChange={(value) => row.toggleSelected(!!value)}
-                        aria-label="Select row"
-                    />
-                ),
-                size: 50,
-                enableSorting: false,
-                enableHiding: false
-            },
-            {
                 id: "name",
                 accessorKey: "name",
                 header: ({ column } : { column: Column<Package, unknown> }) => (
@@ -228,8 +203,7 @@ export default function Page() {
                     variant: "text",
                     icon: Text,
                 },
-                enableColumnFilter: true,
-                size: 200
+                enableColumnFilter: true
             },
             {
                 id: "price",

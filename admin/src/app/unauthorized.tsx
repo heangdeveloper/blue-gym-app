@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 import Image from 'next/image'
 import { useTranslations } from 'next-intl';
 import IcNotFound from "@/assets/img/not-found.svg"
- 
-export default function NotFound() {
+
+export default function Unauthorized() {
     const router = useRouter();
-    const t = useTranslations('notFoundPage');
+    const t = useTranslations('unauthorizedPage');
     return (
         <>
             <main className="flex items-center justify-center flex-col min-h-screen py-16">

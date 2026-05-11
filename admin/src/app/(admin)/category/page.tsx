@@ -50,6 +50,7 @@ import {
     StatusLabel,
 } from "@/components/ui/status";
 import { useConfirm } from "@/app/provider/ConfirmDialogProvider";
+import { categorySchema } from "@/schema/category";
 
 interface Category{
     id: number;
@@ -57,17 +58,9 @@ interface Category{
     status: "active" | "inactive";
 }
 
-const createFormSchema = (t: any) =>
-    z.object({
-        name: z
-        .string()
-        .min(1, { message: t('dialog.form.validation.name') }),
-        status: z.enum(["active", "inactive"]).optional(),
-    });
-
 export default function Page() {
     const t = useTranslations('CategoryPage');
-    const formSchema = React.useMemo(() => createFormSchema(t), [t]);
+    const formSchema = React.useMemo(() => categorySchema(t), [t]);
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -171,31 +164,6 @@ export default function Page() {
     const columns = React.useMemo<ColumnDef<Category>[]>(
         () => [
             {
-                id: "select",
-                header: ({ table }) => (
-                    <Checkbox
-                        checked={
-                            table.getIsAllPageRowsSelected() ||
-                            (table.getIsSomePageRowsSelected())
-                        }
-                        onCheckedChange={(value) => 
-                            table.toggleAllPageRowsSelected(!!value)
-                        }
-                        aria-label="Select all"
-                    />
-                ),
-                cell: ({ row }) => (
-                    <Checkbox
-                        checked={row.getIsSelected()}
-                        onCheckedChange={(value) => row.toggleSelected(!!value)}
-                        aria-label="Select row"
-                    />
-                ),
-                size: 64,
-                enableSorting: false,
-                enableHiding: false
-            },
-            {
                 id: "name",
                 accessorKey: "name",
                 header: ({ column } : { column: Column<Category, unknown> }) => (
@@ -208,8 +176,7 @@ export default function Page() {
                     variant: "text",
                     icon: Text,
                 },
-                enableColumnFilter: true,
-                size: 200
+                enableColumnFilter: true
             },
             {
                 id: "status",
@@ -259,7 +226,6 @@ export default function Page() {
                         </div>
                     )
                 },
-                size: 167,
             }
         ],[form]
     )
@@ -273,7 +239,7 @@ export default function Page() {
     
     return (
         <>
-            <div>
+            <div className="relative flex flex-col w-full mx-auto px-4 min-[768px]:px-4 min-[0]:px-0">
                 <div className="mb-6">
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                         <div className="space-y-1">
@@ -290,9 +256,28 @@ export default function Page() {
                         </div>
                     </div>
                 </div>
-                <DataTable table={table}>
-                    <DataTableToolbar table={table}/>
-                </DataTable>
+                <React.Suspense
+                    fallback={
+                        <DataTableSkeleton
+                            columnCount={7}
+                            filterCount={2}
+                            cellWidths={[
+                                "10rem",
+                                "30rem",
+                                "10rem",
+                                "10rem",
+                                "6rem",
+                                "6rem",
+                                "6rem",
+                            ]}
+                            shrinkZero
+                        />
+                    }
+                >
+                    <DataTable table={table}>
+                        <DataTableToolbar table={table}/>
+                    </DataTable>
+                </React.Suspense>
             </div>
 
             <Dialog

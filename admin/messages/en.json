@@ -212,6 +212,16 @@
             }
         }
     },
+    "notFoundPage": {
+        "title": "404: The page you are looking for isn't here",
+        "subTitle": "You either tried some shady route or you came here by mistake. Whichever it is, try using the navigation.",
+        "button": "Back to home"
+    },
+    "unauthorizedPage": {
+        "title": "401: Authorization required",
+        "subTitle": "You either tried some shady route or you came here by mistake. Whichever it is, try using the navigation.",
+        "button": "Back to home"
+    },
     "datatable": {
         "noresults": "No results."
     },

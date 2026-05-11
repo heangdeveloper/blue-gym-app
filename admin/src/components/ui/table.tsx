@@ -6,24 +6,19 @@ import { cn } from "@/lib/utils"
 
 function Table({ className, ...props }: React.ComponentProps<"table">) {
     return (
-        <div
-            data-slot="table-container"
-            className="relative flex flex-col w-full grow"
-        >
-            <div
-                data-slot="table"
-                className={cn("relative flex flex-col h-full grow z-0", className)}
-                {...props}
-            />
-        </div>
+        <table
+            data-slot="table"
+            className={cn("table w-full border-collapse", className)}
+            {...props}
+        />
     )
 }
 
 function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
     return (
-        <div
+        <thead
             data-slot="table-header"
-            className={cn("flex flex-col w-fit", className)}
+            className={cn("flex flex-col", className)}
             {...props}
         />
     )
@@ -31,7 +26,7 @@ function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
 
 function TableBody({ className, ...props }: React.ComponentProps<"tbody">) {
     return (
-        <div
+        <tbody
             data-slot="table-body"
             className={cn("flex flex-col", className)}
             {...props}
@@ -54,10 +49,10 @@ function TableFooter({ className, ...props }: React.ComponentProps<"tfoot">) {
 
 function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
     return (
-        <div
+        <tr
             data-slot="table-row"
             className={cn(
-                "flex hover:bg-foreground",
+                "table-row align-middle outline-0",
                 className
             )}
             {...props}
@@ -67,10 +62,10 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
 
 function TableHead({ className, ...props }: React.ComponentProps<"th">) {
     return (
-        <div
+        <th
             data-slot="table-head"
             className={cn(
-                "relative flex items-center px-2.5 text-left whitespace-nowrap text-ellipsis text-foreground border-b border-[rgba(145 158 171 / 20%)] bg-[#F4F6F8] [&:has([role=checkbox])]:p-0 [&:has([role=checkbox])]:justify-center",
+                "relative flex items-center flex-auto px-2.5 text-left whitespace-nowrap text-ellipsis border-b border-[rgba(145 158 171 / 20%)] bg-[#F4F6F8] [&:has([role=checkbox])]:p-0 [&:has([role=checkbox])]:justify-center",
                 className
             )}
             {...props}
@@ -80,7 +75,7 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
 
 function TableCell({ className, ...props }: React.ComponentProps<"td">) {
   return (
-    <div
+    <td
         data-slot="table-cell"
         className={cn(
             "flex-auto h-auto p-2.5 align-middle whitespace-normal border-b border-dashed [&:has([role=checkbox])]:p-0 [&:has([role=checkbox])]:justify-center",

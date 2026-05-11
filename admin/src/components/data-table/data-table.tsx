@@ -10,8 +10,13 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import {
+    Card,
+    CardContent,
+    CardFooter,
+    CardHeader,
+} from "@/components/ui/card"
 import { getColumnPinningStyle } from "@/lib/data-table";
-import { cn } from "@/lib/utils";
 import { useTranslations } from 'next-intl';
 import SimpleBar from 'simplebar-react';
 import 'simplebar-react/dist/simplebar.min.css';
@@ -30,83 +35,92 @@ export function DataTable<TData>({
 }: DataTableProps<TData>) {
     const t = useTranslations('datatable');
     return (
-        <div
-            className={cn("flex w-full flex-col gap-2.5 overflow-auto", className)}
-            {...props}
+        <Card
+            className="pt-0 gap-0 rounded-md ring-0"
         >
-        {children}
-            <SimpleBar forceVisible="x" autoHide={false}>
-                <Table>
-                    <TableHeader
-                        className="flex flex-col overflow-hidden min-w-full"
-                    >
-                        {table.getHeaderGroups().map((headerGroup) => (
-                            <TableRow
-                                key={headerGroup.id}
-                                className="relative flex w-fit h-14"
-                            >
-                                {headerGroup.headers.map((header) => (
-                                    <TableHead
-                                        key={header.id}
-                                        colSpan={header.colSpan}
-                                        style={{
-                                        ...getColumnPinningStyle({ column: header.column }),
-                                        }}
-                                    >
-                                        {header.isPlaceholder
-                                        ? null
-                                        : flexRender(
-                                            header.column.columnDef.header,
-                                            header.getContext(),
-                                            )}
-                                    </TableHead>
-                                ))}
-                            </TableRow>
-                        ))}
-                    </TableHeader>
-                    <TableBody>
-                        {table.getRowModel().rows?.length ? (
-                            table.getRowModel().rows.map((row) => (
+            <CardHeader
+                className="p-4"
+            >
+                {children}
+            </CardHeader>
+            <CardContent
+                className="px-0"
+            >
+                <SimpleBar forceVisible="x" autoHide={false}>
+                    <Table>
+                        <TableHeader
+                            className="flex flex-col overflow-hidden min-w-full"
+                        >
+                            {table.getHeaderGroups().map((headerGroup) => (
                                 <TableRow
-                                    key={row.id}
-                                    data-state={row.getIsSelected() && "selected"}
-                                    className="relative flex w-fit"
+                                    key={headerGroup.id}
+                                    className="relative flex h-14"
                                 >
-                                {row.getVisibleCells().map((cell) => (
-                                    <TableCell
-                                        key={cell.id}
-                                        style={{
-                                            ...getColumnPinningStyle({ column: cell.column }),
-                                        }}
-                                        className="relative flex items-center h-auto text-sm py-0"
-                                    >
-                                        {flexRender(
-                                            cell.column.columnDef.cell,
-                                            cell.getContext(),
-                                        )}
-                                    </TableCell>
-                                ))}
+                                    {headerGroup.headers.map((header) => (
+                                        <TableHead
+                                            key={header.id}
+                                            colSpan={header.colSpan}
+                                            style={{
+                                            ...getColumnPinningStyle({ column: header.column }),
+                                            }}
+                                        >
+                                            {header.isPlaceholder
+                                            ? null
+                                            : flexRender(
+                                                header.column.columnDef.header,
+                                                header.getContext(),
+                                                )}
+                                        </TableHead>
+                                    ))}
                                 </TableRow>
-                            ))
-                        ) : (
-                            <TableRow>
-                                <TableCell
-                                    colSpan={table.getAllColumns().length}
-                                    className="h-24 text-center"
-                                >
-                                    {t('noresults')}
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-            </SimpleBar>
-            <div className="flex flex-col gap-2.5">
+                            ))}
+                        </TableHeader>
+                        <TableBody>
+                            {table.getRowModel().rows?.length ? (
+                                table.getRowModel().rows.map((row) => (
+                                    <TableRow
+                                        key={row.id}
+                                        data-state={row.getIsSelected() && "selected"}
+                                        className="relative flex"
+                                    >
+                                    {row.getVisibleCells().map((cell) => (
+                                        <TableCell
+                                            key={cell.id}
+                                            style={{
+                                                ...getColumnPinningStyle({ column: cell.column }),
+                                            }}
+                                            className="relative flex items-center h-auto text-sm py-0"
+                                        >
+                                            {flexRender(
+                                                cell.column.columnDef.cell,
+                                                cell.getContext(),
+                                            )}
+                                        </TableCell>
+                                    ))}
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell
+                                        colSpan={table.getAllColumns().length}
+                                        className="h-24 text-center"
+                                    >
+                                        {t('noresults')}
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </SimpleBar>
+            </CardContent>
+            <CardFooter
+                className="p-4 border-t-0"
+            >
                 <DataTablePagination table={table} />
                 {actionBar &&
                 table.getFilteredSelectedRowModel().rows.length > 0 &&
                 actionBar}
-            </div>
-        </div>
+            </CardFooter>
+        </Card>
     );
 }
