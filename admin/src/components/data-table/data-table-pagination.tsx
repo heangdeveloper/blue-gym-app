@@ -15,6 +15,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { useTranslations } from 'next-intl';
 
 interface DataTablePaginationProps<TData> extends React.ComponentProps<"div"> {
     table: Table<TData>;
@@ -27,6 +28,7 @@ export function DataTablePagination<TData>({
     className,
     ...props
 }: DataTablePaginationProps<TData>) {
+    const t = useTranslations('datatable');
     return (
         <div
             className={cn(
@@ -44,7 +46,7 @@ export function DataTablePagination<TData>({
                 <Select
                     value={`${table.getState().pagination.pageSize}`}
                     onValueChange={(value) => {
-                    table.setPageSize(Number(value));
+                        table.setPageSize(Number(value));
                     }}
                 >
                     <SelectTrigger className="h-8 w-18 data-size:h-8">
@@ -53,7 +55,7 @@ export function DataTablePagination<TData>({
                     <SelectContent side="top">
                     {pageSizeOptions.map((pageSize) => (
                         <SelectItem key={pageSize} value={`${pageSize}`}>
-                        {pageSize}
+                            {pageSize}
                         </SelectItem>
                     ))}
                     </SelectContent>

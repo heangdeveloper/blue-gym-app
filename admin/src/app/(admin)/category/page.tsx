@@ -13,6 +13,7 @@ import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
 import { useDataTable } from "@/hooks/use-data-table";
+import type { DataTableRowAction, QueryKeys } from "@/types/data-table";
 import { DataTableSkeleton } from "@/components/data-table/data-table-skeleton";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form";
@@ -234,6 +235,12 @@ export default function Page() {
         data: filteredData,
         columns,
         pageCount: 10,
+        initialState: {
+            pagination: {
+                pageIndex: 2,
+                pageSize: 25,
+            }
+        },
         getRowId: (row) => row.id.toString(),
     });
     

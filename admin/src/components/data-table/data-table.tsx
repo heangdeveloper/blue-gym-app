@@ -100,12 +100,12 @@ export function DataTable<TData>({
                                     </TableRow>
                                 ))
                             ) : (
-                                <TableRow>
+                                <TableRow className="relative flex">
                                     <TableCell
                                         colSpan={table.getAllColumns().length}
-                                        className="h-24 text-center"
+                                        className="flex justify-center items-center h-24 text-center"
                                     >
-                                        {t('noresults')}
+                                        {t('emptyTable')}
                                     </TableCell>
                                 </TableRow>
                             )}
@@ -117,9 +117,9 @@ export function DataTable<TData>({
                 className="p-4 border-t-0"
             >
                 <DataTablePagination table={table} />
-                {actionBar &&
+                {/* {actionBar &&
                 table.getFilteredSelectedRowModel().rows.length > 0 &&
-                actionBar}
+                actionBar} */}
             </CardFooter>
         </Card>
     );

@@ -35,10 +35,10 @@ export async function PATCH(
 
 export async function DELETE(
     request: Request,
-    context: { params: Promise<{ id: string }> }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const { id } = await context.params;
+        const { id } = await params;
 
         const res = await fetch(`${API_URL}/api/branchs/${id}`, {
             method: "DELETE",

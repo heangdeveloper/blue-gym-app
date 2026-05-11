@@ -224,7 +224,13 @@
         "button": "Back to home"
     },
     "datatable": {
-        "noresults": "No results."
+        "paginate": {
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "previous": "Previous"
+        },
+        "emptyTable": "No data available in table"
     },
     "removeDialog": {
         "title": "Are you absolutely sure?",

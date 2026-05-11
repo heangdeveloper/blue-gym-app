@@ -3,11 +3,12 @@ import '@/../envConfig';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-export async function GET() {
+export async function GET(request: Request) {
+    "use cache";
     try {
         const res = await fetch(`${API_URL}/api/branchs`, {
             headers: {
-                Accept: "application/json",
+                'Content-Type': 'application/json',
             },
             cache: "no-store",
         });
