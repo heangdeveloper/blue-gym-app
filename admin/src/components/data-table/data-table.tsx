@@ -61,15 +61,20 @@ export function DataTable<TData>({
                                             key={header.id}
                                             colSpan={header.colSpan}
                                             style={{
-                                            ...getColumnPinningStyle({ column: header.column }),
+                                                ...getColumnPinningStyle({ column: header.column }),
                                             }}
                                         >
-                                            {header.isPlaceholder
-                                            ? null
-                                            : flexRender(
+                                            <span
+                                                {...{
+                                                    className: header.column.getCanSort() ? 'cursor-pointer select-none' : '',
+                                                    onClick: header.column.getToggleSortingHandler(),
+                                                }}
+                                            >
+                                            {flexRender(
                                                 header.column.columnDef.header,
                                                 header.getContext(),
-                                                )}
+                                            )}
+                                            </span>
                                         </TableHead>
                                     ))}
                                 </TableRow>

@@ -60,7 +60,8 @@
         "table": {
             "header": {
                 "name": "ឈ្មោះ",
-                "status": "ស្ថានភាព"
+                "status": "ស្ថានភាព",
+                "action": "សកម្មភាព"
             },
             "body": {
                 "status": {

@@ -7,13 +7,11 @@ import {
     Pencil,
     Trash2,
 } from "lucide-react";
-import type { Column, ColumnDef, Table } from "@tanstack/react-table";
-import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
+import type { Column, ColumnDef, PaginationState } from "@tanstack/react-table";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
 import { useDataTable } from "@/hooks/use-data-table";
-import type { DataTableRowAction, QueryKeys } from "@/types/data-table";
 import { DataTableSkeleton } from "@/components/data-table/data-table-skeleton";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form";
@@ -22,7 +20,6 @@ import * as z from "zod"
 import { useTranslations } from 'next-intl';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
     Field,
     FieldGroup,
@@ -72,8 +69,6 @@ export default function Page() {
     const [categorys, setCategorys] = React.useState<Category[]>([]);
     const [openAddDialog, setOpenAddDialog] = React.useState(false);
     const [selectedId, setSelectedId] = React.useState<number | null>(null);
-    const [name] = useQueryState("name", parseAsString.withDefault(""));
-    const [status] = useQueryState("status", parseAsArrayOf(parseAsString).withDefault([]));
 
     const confrim = useConfirm();
 
@@ -154,14 +149,6 @@ export default function Page() {
         }
     };
 
-    const filteredData = React.useMemo(() => {
-        return categorys.filter((item) => {
-            const matchesName = name === "" || item.name.toLowerCase().includes(name.toLowerCase());
-            const matchesStatus = status.length === 0 || status.includes(item.status);
-            return matchesName && matchesStatus;
-        })
-    }, [categorys, name, status]);
-
     const columns = React.useMemo<ColumnDef<Category>[]>(
         () => [
             {
@@ -199,18 +186,12 @@ export default function Page() {
                         </Status>
                     );
                 },
-                meta: {
-                    label: "Status",
-                    variant: "multiSelect",
-                    options: [
-                        { label: "Active", value: "active" },
-                        { label: "Inactive", value: "inactive" },
-                    ],
-                },
-                enableColumnFilter: true,
             },
             {
                 id: "actions",
+                header: ({ column } : { column: Column<Category, unknown> }) => (
+                    <DataTableColumnHeader column={column} label={t("table.header.action")}/>
+                ),
                 cell: ({ row }) => {
                     const item = row.original;
                     return (
@@ -232,14 +213,15 @@ export default function Page() {
     )
 
     const { table } = useDataTable({
-        data: filteredData,
+        data: categorys,
         columns,
-        pageCount: 10,
+        pageCount: -1,
         initialState: {
+            sorting: [{ id: "name", desc: true }],
             pagination: {
-                pageIndex: 2,
-                pageSize: 25,
-            }
+                pageIndex: 0,
+                pageSize: 10,
+            },
         },
         getRowId: (row) => row.id.toString(),
     });
