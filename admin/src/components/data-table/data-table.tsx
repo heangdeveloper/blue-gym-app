@@ -61,7 +61,7 @@ export function DataTable<TData>({
                                             key={header.id}
                                             colSpan={header.colSpan}
                                             style={{
-                                                ...getColumnPinningStyle({ column: header.column }),
+                                            ...getColumnPinningStyle({ column: header.column }),
                                             }}
                                         >
                                             <span
@@ -70,10 +70,10 @@ export function DataTable<TData>({
                                                     onClick: header.column.getToggleSortingHandler(),
                                                 }}
                                             >
-                                            {flexRender(
-                                                header.column.columnDef.header,
-                                                header.getContext(),
-                                            )}
+                                                {flexRender(
+                                                    header.column.columnDef.header,
+                                                    header.getContext(),
+                                                )}
                                             </span>
                                         </TableHead>
                                     ))}

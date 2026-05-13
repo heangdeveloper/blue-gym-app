@@ -66,7 +66,7 @@ export default function Page() {
             status: "active",
         }
     })
-    const [categorys, setCategorys] = React.useState<Category[]>([]);
+    const [data, setData] = React.useState<Category[]>([]);
     const [openAddDialog, setOpenAddDialog] = React.useState(false);
     const [selectedId, setSelectedId] = React.useState<number | null>(null);
 
@@ -81,7 +81,7 @@ export default function Page() {
                     },
                 });
                 const json = await res.json();
-                setCategorys(json.data.map((item: any) => item.data ?? item));
+                setData(json.data.map((item: any) => item.data ?? item));
             } catch (err) {
                 console.error("Failed to fetch categorys:", err);
             }
@@ -102,7 +102,7 @@ export default function Page() {
                 })
                 const updatedItem = await res.json();
 
-                setCategorys((prev) =>
+                setData((prev) =>
                     prev.map((item) =>
                         item.id === Number(selectedId)
                             ? updatedItem.data.data ?? updatedItem.data
@@ -122,7 +122,7 @@ export default function Page() {
                 const newItem = await res.json();
                 console.log(newItem)
 
-                setCategorys((prev) => [...prev, newItem.data]);
+                setData((prev) => [...prev, newItem.data]);
             }
             setOpenAddDialog(false);
             setSelectedId(null);
@@ -141,7 +141,7 @@ export default function Page() {
                 method: "DELETE",
             });
 
-            setCategorys((prev) =>
+            setData((prev) =>
                 prev.filter((item) => item.id !== id)
             );
         } catch (err) {
@@ -213,7 +213,7 @@ export default function Page() {
     )
 
     const { table } = useDataTable({
-        data: categorys,
+        data,
         columns,
         pageCount: -1,
         initialState: {
@@ -248,24 +248,18 @@ export default function Page() {
                 <React.Suspense
                     fallback={
                         <DataTableSkeleton
-                            columnCount={7}
+                            columnCount={3}
                             filterCount={2}
                             cellWidths={[
                                 "10rem",
                                 "30rem",
                                 "10rem",
-                                "10rem",
-                                "6rem",
-                                "6rem",
-                                "6rem",
                             ]}
                             shrinkZero
                         />
                     }
                 >
-                    <DataTable table={table}>
-                        <DataTableToolbar table={table}/>
-                    </DataTable>
+                    <DataTable table={table}/>
                 </React.Suspense>
             </div>
 
