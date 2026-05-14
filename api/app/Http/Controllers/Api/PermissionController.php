@@ -16,7 +16,7 @@ class PermissionController extends Controller
      */
     public function index()
     {
-        $permissions = Permission::latest()->paginate(10);
+        $permissions = Permission::latest()->get();
 
         return PermissionResource::collection($permissions);
     }

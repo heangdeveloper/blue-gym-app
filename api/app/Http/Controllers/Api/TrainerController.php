@@ -17,7 +17,7 @@ class TrainerController extends Controller
     public function index()
     {
         return TrainerResource::collection(
-            Trainer::with('branch')->latest()->paginate(10)
+            Trainer::with('branch')->latest()->get()
         );
     }
 

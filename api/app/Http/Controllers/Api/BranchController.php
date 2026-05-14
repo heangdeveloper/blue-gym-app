@@ -16,7 +16,7 @@ class BranchController extends Controller
     public function index()
     {
         return BranchResource::collection(
-            Branch::with('trainers')->latest()->paginate(10)
+            Branch::with('trainers')->latest()->get()
         );
     }
 

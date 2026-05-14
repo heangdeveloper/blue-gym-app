@@ -1,31 +1,21 @@
 "use client";
 
 import * as React from "react";
-import type { Column, ColumnDef, Table } from "@tanstack/react-table";
+import type { Column, ColumnDef } from "@tanstack/react-table";
 import {
-    CheckCircle,
-    CheckCircle2,
     Text,
-    XCircle,
     Plus,
     Pencil,
     Trash2,
-    DollarSign,
-    X,
-    Download
 } from "lucide-react";
-import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
+import { parseAsString, useQueryState } from "nuqs";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
 import { useDataTable } from "@/hooks/use-data-table";
-import { useRouter } from "next/navigation";
 import { formatCurrency } from "@/lib/format-currency";
 
-import { ActionBar, ActionBarClose, ActionBarGroup, ActionBarItem, ActionBarSelection, ActionBarSeparator } from "@/components/ui/action-bar";
-import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
     Avatar,
     AvatarImage
@@ -49,7 +39,6 @@ interface Product {
 
 export default function Page() {
     const [products, setProducts] = React.useState<Product[]>([]);
-
     const [name] = useQueryState("name", parseAsString.withDefault(""));
 
     React.useEffect(() => {
@@ -61,7 +50,6 @@ export default function Page() {
                     },
                 });
                 const json = await res.json();
-                console.log(json)
                 setProducts(json.data.map((item: any) => item.data ?? item));
             } catch (err) {
                 console.error("Failed to fetch products:", err);
@@ -79,31 +67,6 @@ export default function Page() {
     }, [products, name]);
 
     const columns = React.useMemo<ColumnDef<Product>[]>(() => [
-        {
-            id: "select",
-            header: ({ table }) => (
-                <Checkbox
-                    checked={
-                        table.getIsAllPageRowsSelected() ||
-                        (table.getIsSomePageRowsSelected())
-                    }
-                    onCheckedChange={(value) => 
-                        table.toggleAllPageRowsSelected(!!value)
-                    }
-                    aria-label="Select all"
-                />
-            ),
-            cell: ({ row }) => (
-                <Checkbox
-                    checked={row.getIsSelected()}
-                    onCheckedChange={(value) => row.toggleSelected(!!value)}
-                    aria-label="Select row"
-                />
-            ),
-            size: 50,
-            enableSorting: false,
-            enableHiding: false
-        },
         {
             id: "products",
             accessorKey: "products",
@@ -150,7 +113,7 @@ export default function Page() {
                         }).replace(",", "")}
                     </div>
                 );
-    },
+            },
             meta: {
                 label: "Create at", 
             },

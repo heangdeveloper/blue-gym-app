@@ -21,7 +21,7 @@ class WalkinController extends Controller
             'branch',
             'package',
             'product'
-        ])->latest()->paginate(10);
+        ])->latest()->get();
 
         return WalkinResource::collection($walkins);
     }

@@ -18,7 +18,7 @@ class ClasseController extends Controller
     {
         $classes = Classe::with(['branch', 'trainer'])
             ->latest()
-            ->paginate(10);
+            ->get();
 
         return ClasseResource::collection($classes);
     }
