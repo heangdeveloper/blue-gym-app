@@ -31,7 +31,7 @@ export function DataTableSkeleton({
     filterCount = 0,
     cellWidths = ["auto"],
     withViewOptions = true,
-    withPagination = true,
+    withPagination = false,
     shrinkZero = false,
     className,
     ...props
@@ -46,7 +46,7 @@ export function DataTableSkeleton({
             className={cn("flex w-full flex-col gap-2.5 overflow-auto", className)}
             {...props}
         >
-            <div className="flex w-full items-center justify-between gap-2 overflow-auto p-1">
+            {/* <div className="flex w-full items-center justify-between gap-2 overflow-auto p-1">
                 <div className="flex flex-1 items-center gap-2">
                     {filterCount > 0
                         ? Array.from({ length: filterCount }).map((_, i) => (
@@ -57,8 +57,8 @@ export function DataTableSkeleton({
                 {withViewOptions ? (
                     <Skeleton className="ml-auto hidden h-7 w-18 lg:flex" />
                 ) : null}
-            </div>
-            <div className="rounded-md border">
+            </div> */}
+            <CardContent className="px-0">
                 <Table>
                     <TableHeader>
                         {Array.from({ length: 1 }).map((_, i) => (
@@ -95,26 +95,28 @@ export function DataTableSkeleton({
                         ))}
                     </TableBody>
                 </Table>
-            </div>
+            </CardContent>
             {withPagination ? (
-                <div className="flex w-full items-center justify-between gap-4 overflow-auto p-1 sm:gap-8">
-                    <Skeleton className="h-7 w-40 shrink-0" />
-                    <div className="flex items-center gap-4 sm:gap-6 lg:gap-8">
-                        <div className="flex items-center gap-2">
-                            <Skeleton className="h-7 w-24" />
-                            <Skeleton className="h-7 w-18" />
-                        </div>
-                        <div className="flex items-center justify-center font-medium text-sm">
-                            <Skeleton className="h-7 w-20" />
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <Skeleton className="hidden size-7 lg:block" />
-                            <Skeleton className="size-7" />
-                            <Skeleton className="size-7" />
-                            <Skeleton className="hidden size-7 lg:block" />
+                <CardFooter className="p-4 border-t-0">
+                    <div className="flex w-full items-center justify-between gap-4 overflow-auto p-1 sm:gap-8">
+                        <Skeleton className="h-7 w-40 shrink-0" />
+                        <div className="flex items-center gap-4 sm:gap-6 lg:gap-8">
+                            <div className="flex items-center gap-2">
+                                <Skeleton className="h-7 w-24" />
+                                <Skeleton className="h-7 w-18" />
+                            </div>
+                            <div className="flex items-center justify-center font-medium text-sm">
+                                <Skeleton className="h-7 w-20" />
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Skeleton className="hidden size-7 lg:block" />
+                                <Skeleton className="size-7" />
+                                <Skeleton className="size-7" />
+                                <Skeleton className="hidden size-7 lg:block" />
+                            </div>
                         </div>
                     </div>
-                </div>
+                </CardFooter>
             ) : null}
         </div>
     );

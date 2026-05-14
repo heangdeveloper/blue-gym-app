@@ -10,9 +10,7 @@ import {
 import type { Column, ColumnDef, PaginationState } from "@tanstack/react-table";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
-import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
 import { useDataTable } from "@/hooks/use-data-table";
-import { DataTableSkeleton } from "@/components/data-table/data-table-skeleton";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form";
 import * as z from "zod"
@@ -245,22 +243,7 @@ export default function Page() {
                         </div>
                     </div>
                 </div>
-                <React.Suspense
-                    fallback={
-                        <DataTableSkeleton
-                            columnCount={3}
-                            filterCount={2}
-                            cellWidths={[
-                                "10rem",
-                                "30rem",
-                                "10rem",
-                            ]}
-                            shrinkZero
-                        />
-                    }
-                >
-                    <DataTable table={table}/>
-                </React.Suspense>
+                <DataTable table={table}/>
             </div>
 
             <Dialog

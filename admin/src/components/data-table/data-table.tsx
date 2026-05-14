@@ -1,5 +1,5 @@
 import { flexRender, type Table as TanstackTable } from "@tanstack/react-table";
-import type * as React from "react";
+import React from "react";
 
 import { DataTablePagination } from "@/components/data-table/data-table-pagination";
 import {
@@ -31,7 +31,6 @@ export function DataTable<TData>({
     actionBar,
     children,
     className,
-  ...props
 }: DataTableProps<TData>) {
     const t = useTranslations('datatable');
     return (

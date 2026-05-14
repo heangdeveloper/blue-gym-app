@@ -166,6 +166,157 @@
             }
         }
     },
+    "BranchPage": {
+        "header": {
+            "title": "Branchs",
+            "subtitle": "Manage branch list, add, edit and delete.",
+            "addButton": "Add Branch"
+        },
+        "table": {
+            "header": {
+                "name": "Name",
+                "location": "Location",
+                "phone": "Phone Number",
+                "status": "Status",
+                "action": "Action"
+            },
+            "body": {
+                "status": {
+                    "active": "Active",
+                    "inactive": "Inactive"
+                },
+                "actions": {
+                    "edit": "Edit",
+                    "delete": "Delete"
+                }
+            }
+        },
+        "dialog": {
+            "addTitle": "Add Branch",
+            "editTitle": "Update Branch",
+            "form": {
+                "name": "Name",
+                "location": "Location",
+                "phone": "Phone Number",
+                "status": "Status",
+                "select": {
+                    "placeholder": "Select status",
+                    "item": {
+                        "active": "Active",
+                        "inactive": "Inactive"
+                    }
+                },
+                "validation": {
+                    "name": {
+                        "min": "Branch name must be at least 2 characters",
+                        "max": "Branch name must not exceed 100 characters"
+                    },
+                    "location": {
+                        "min": "Location must be at least 5 characters",
+                        "max": "Location must not exceed 255 characters"
+                    },
+                    "phone": {
+                        "regex": "Invalid phone number format"
+                    },
+                    "status": {
+                        "error": "Status must be either active or inactive"
+                    }
+                }
+            },
+            "button": {
+                "cancel": "Cancel",
+                "save": "Save changes",
+                "saving": "Saving",
+                "update": "Update",
+                "updating": "Updating"
+            }
+        }
+    },
+    "ClassePage": {
+        "header": {
+            "title": "Classes",
+            "subtitle": "Manage class list, add, edit and delete.",
+            "addButton": "Add Class"
+        },
+        "table": {
+            "header": {
+                "name": "Name",
+                "branch": "Branch",
+                "trainer": "Trainer",
+                "schedule": "Schedule",
+                "status": "Status",
+                "action": "Action"
+            },
+            "body": {
+                "status": {
+                    "active": "Active",
+                    "inactive": "Inactive"
+                },
+                "actions": {
+                    "edit": "Edit",
+                    "delete": "Delete"
+                }
+            }
+        },
+        "dialog": {
+            "addTitle": "Add Class",
+            "editTitle": "Update Class",
+            "form": {
+                "name": "Name",
+                "branch": "Branch",
+                "selectBranch": {
+                    "placeholder": "Select Branch"
+                },
+                "trainer": "Trainer",
+                "selectTrainer": {
+                    "placeholder": "Select Trainer"
+                },
+                "schedule": "Schedule",
+                "start_date": "Start Date",
+                "start_time": "Start Time",
+                "end_time": "End Time",
+                "status": "Status",
+                "select": {
+                    "placeholder": "Select status",
+                    "item": {
+                        "active": "Active",
+                        "inactive": "Inactive"
+                    }
+                },
+                "validation": {
+                    "name": {
+                        "min": "Branch name must be at least 2 characters",
+                        "max": "Branch name must not exceed 100 characters"
+                    },
+                    "branch": {
+                        "min": "Please select a branch"
+                    },
+                    "trainer": {
+                        "min": "Please select a trainer"
+                    },
+                    "start_date": {
+                        "min": "Please enter a start date"
+                    },
+                    "start_time": {
+                        "min": "Please enter a start time"
+                    },
+                    "end_time": {
+                        "min": "Please enter a end time"
+                    },
+                    "status": {
+                        "error": "Status must be either active or inactive"
+                    }
+                }
+            },
+            "button": {
+                "cancel": "Cancel",
+                "save": "Save changes",
+                "saving": "Saving",
+                "update": "Update",
+                "updating": "Updating"
+            }
+        }
+    },
     "PermissionPage": {
         "header": {
             "title": "Permissions",
