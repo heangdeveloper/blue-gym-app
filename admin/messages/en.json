@@ -320,14 +320,15 @@
     "PermissionPage": {
         "header": {
             "title": "Permissions",
-            "subtitle": "Manage Permissions.",
+            "subtitle": "Manage permission list, add, edit and delete.",
             "addButton": "Add Permission"
         },
         "table": {
             "header": {
                 "name": "Name",
                 "assigned_to": "Assigned To",
-                "created_date": "Created Date"
+                "created_at": "Created Date",
+                "action": "Action"
             },
             "body": {
                 "status": {
@@ -361,7 +362,113 @@
             "button": {
                 "cancel": "Cancel",
                 "save": "Save changes",
-                "update": "Update"
+                "saving": "Saving",
+                "update": "Update",
+                "updating": "Updating"
+            }
+        }
+    },
+    "RolePage": {
+        "header": {
+            "title": "Roles",
+            "subtitle": "Manage role list, add, edit and delete.",
+            "addButton": "Add Role"
+        },
+        "table": {
+            "header": {
+                "name": "Name",
+                "assigned_to": "Assigned To",
+                "created_at": "Created Date",
+                "action": "Action"
+            },
+            "body": {
+                "status": {
+                    "active": "Active",
+                    "inactive": "Inactive"
+                },
+                "actions": {
+                    "edit": "Edit",
+                    "delete": "Delete"
+                }
+            }
+        },
+        "dialog": {
+            "addTitle": "Add Role",
+            "editTitle": "Update Role",
+            "form": {
+                "name": "Name",
+                "select": {
+                    "placeholder": "Select status",
+                    "item": {
+                        "active": "Active",
+                        "inactive": "Inactive"
+                    }
+                },
+                "validation": {
+                    "name": {
+                        "min": "Role is required"
+                    }
+                }
+            },
+            "button": {
+                "cancel": "Cancel",
+                "save": "Save changes",
+                "saving": "Saving",
+                "update": "Update",
+                "updating": "Updating"
+            }
+        }
+    },
+    "UserPage": {
+        "header": {
+            "title": "Users",
+            "subtitle": "Manage user list, add, edit and delete.",
+            "addButton": "Add User"
+        },
+        "table": {
+            "header": {
+                "name": "Name",
+                "email": "Email",
+                "role": "Role",
+                "status": "Status",
+                "create_at": "Joined Date",
+                "action": "Action"
+            },
+            "body": {
+                "status": {
+                    "active": "Active",
+                    "inactive": "Inactive"
+                },
+                "actions": {
+                    "edit": "Edit",
+                    "delete": "Delete"
+                }
+            }
+        },
+        "dialog": {
+            "addTitle": "Add User",
+            "editTitle": "Update User",
+            "form": {
+                "name": "Name",
+                "select": {
+                    "placeholder": "Select status",
+                    "item": {
+                        "active": "Active",
+                        "inactive": "Inactive"
+                    }
+                },
+                "validation": {
+                    "name": {
+                        "min": "User is required"
+                    }
+                }
+            },
+            "button": {
+                "cancel": "Cancel",
+                "save": "Save changes",
+                "saving": "Saving",
+                "update": "Update",
+                "updating": "Updating"
             }
         }
     },

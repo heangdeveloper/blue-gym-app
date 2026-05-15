@@ -28,7 +28,7 @@ export default async function RootLayout({
     children: React.ReactNode;
 }>) {
     const cookieStore = await cookies();
-    const locale = cookieStore.get("locale")?.value;
+    const locale = cookieStore.get("locale")?.value || "kh";
     const fontClass = locale === "kh" ? battambang.className : inter.className;
     return (
         <html

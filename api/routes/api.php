@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\WalkinController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PermissionController;
+use App\Http\Controllers\Api\RoleController;
 
 // Public routes
 Route::post('/login', [AuthController::class, 'login']);
@@ -24,6 +25,7 @@ Route::apiResources([
         'products' => ProductController::class,
         'walkins' => WalkinController::class,
         'permissions' => PermissionController::class,
+        'roles' => RoleController::class,
     ]);
 
 // Protected routes

@@ -1,5 +1,15 @@
-import { flexRender, type Table as TanstackTable } from "@tanstack/react-table";
 import React from "react";
+
+import {
+    ColumnDef,
+    SortingState,
+    flexRender,
+    getCoreRowModel,
+    useReactTable,
+    getSortedRowModel,
+    getPaginationRowModel,
+    PaginationState,
+} from "@tanstack/react-table";
 
 import { DataTablePagination } from "@/components/data-table/data-table-pagination";
 import {
@@ -21,26 +31,43 @@ import { useTranslations } from 'next-intl';
 import SimpleBar from 'simplebar-react';
 import 'simplebar-react/dist/simplebar.min.css';
 
-interface DataTableProps<TData> extends React.ComponentProps<"div"> {
-    table: TanstackTable<TData>;
-    actionBar?: React.ReactNode;
+export  interface DataTableProps<TData, TValue> {
+    columns: ColumnDef<TData, TValue>[];
+    data: TData[];
 }
 
-export function DataTable<TData>({
-    table,
-    actionBar,
-    children,
-    className,
-}: DataTableProps<TData>) {
+export function DataTable<TData, TValue>({
+    columns,
+    data,
+}: DataTableProps<TData, TValue>) {
     const t = useTranslations('datatable');
+    const [rowSelection, setRowSelection] = React.useState({});
+    const [sorting, setSorting] = React.useState<SortingState>([]);
+    const table = useReactTable({
+        data,
+        columns,
+        getCoreRowModel: getCoreRowModel(),
+        onRowSelectionChange: setRowSelection,
+        onSortingChange: setSorting,
+        getSortedRowModel: getSortedRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
+        state: {
+            rowSelection,
+            sorting,
+        },
+        initialState: {
+        pagination: {
+            pageSize: 10,
+            pageIndex: 0,
+        },
+        },
+    });
     return (
         <Card
             className="pt-0 gap-0 rounded-md ring-0"
         >
-            <CardHeader
-                className="p-4"
-            >
-                {children}
+            <CardHeader className="p-4">
+                {/* {children} */}
             </CardHeader>
             <CardContent
                 className="px-0"

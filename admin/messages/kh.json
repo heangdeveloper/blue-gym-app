@@ -315,14 +315,15 @@
     "PermissionPage": {
         "header": {
             "title": "សិទ្ធិ",
-            "subtitle": "គ្រប់គ្រងសិទ្ធិ។",
+            "subtitle": "គ្រប់គ្រងបញ្ជីការអនុញ្ញាត បន្ថែម កែសម្រួល និងលុប",
             "addButton": "បន្ថែមសិទ្ធិ"
         },
         "table": {
             "header": {
                 "name": "ឈ្មោះ",
                 "assigned_to": "បានផ្ដល់ទៅ",
-                "created_date": "កាលបរិច្ឆេទបង្កើត"
+                "created_at": "កាលបរិច្ឆេទបង្កើត",
+                "action": "សកម្មភាព"
             },
             "body": {
                 "status": {
@@ -355,8 +356,116 @@
             },
             "button": {
                 "cancel": "បោះបង់",
-                "save": "រក្សាទុកការផ្លាស់ប្តូរ",
-                "update": "ធ្វើបច្ចុប្បន្នភាព"
+                "save": "រក្សាទុក",
+                "saving": "កំពុងរក្សាទុក",
+                "update": "កែប្រែ",
+                "updating": "កំពុងកែប្រែ"
+            }
+        }
+    },
+    "RolePage": {
+        "header": {
+            "title": "តួនាទី",
+            "subtitle": "គ្រប់គ្រងបញ្ជីតួនាទី បន្ថែម កែសម្រួល និងលុប",
+            "addButton": "បន្ថែមតួនាទី"
+        },
+        "table": {
+            "header": {
+                "name": "ឈ្មោះ",
+                "assigned_to": "បានផ្ដល់ទៅ",
+                "created_at": "កាលបរិច្ឆេទបង្កើត",
+                "action": "សកម្មភាព"
+            },
+            "body": {
+                "status": {
+                    "active": "សកម្ម",
+                    "inactive": "អសកម្ម"
+                },
+                "actions": {
+                    "edit": "កែប្រែ",
+                    "delete": "លុប"
+                }
+            }
+        },
+        "dialog": {
+            "addTitle": "បន្ថែមតួនាទី",
+            "editTitle": "កែប្រែតួនាទី",
+            "form": {
+                "name": "ឈ្មោះ",
+                "select": {
+                    "placeholder": "ជ្រើសរើសស្ថានភាព",
+                    "item": {
+                        "active": "សកម្ម",
+                        "inactive": "អសកម្ម"
+                    }
+                },
+                "validation": {
+                    "name": {
+                        "min": "តួនាទីត្រូវតែបំពេញ"
+                    }
+                }
+            },
+            "button": {
+                "cancel": "បោះបង់",
+                "save": "រក្សាទុក",
+                "saving": "កំពុងរក្សាទុក",
+                "update": "កែប្រែ",
+                "updating": "កំពុងកែប្រែ"
+            }
+        }
+    },
+    "UserPage": {
+        "header": {
+            "title": "អ្នកប្រើប្រាស់",
+            "subtitle": "គ្រប់គ្រងបញ្ជីអ្នកប្រើប្រាស់ បន្ថែម កែសម្រួល និងលុប",
+            "addButton": "បន្ថែមអ្នកប្រើប្រាស់"
+        },
+        "table": {
+            "header": {
+                "name": "ឈ្មោះ",
+                "email": "អ៊ីមែល",
+                "role": "តួនាទី",
+                "status": "ស្ថានភាព",
+                "create_at": "ថ្ងៃចូលរួម",
+                "action": "សកម្មភាព"
+            },
+            "body": {
+                "status": {
+                    "active": "សកម្ម",
+                    "inactive": "អសកម្ម"
+                },
+                "actions": {
+                    "edit": "កែប្រែ",
+                    "delete": "លុប"
+                }
+            }
+        },
+        "dialog": {
+            "addTitle": "បន្ថែមអ្នកប្រើប្រាស់",
+            "editTitle": "កែប្រែអ្នកប្រើប្រាស់",
+            "form": {
+                "name": "ឈ្មោះ",
+                "email": "អ៊ីមែល",
+                "role": "តួនាទី",
+                "select": {
+                    "placeholder": "ជ្រើសរើសស្ថានភាព",
+                    "item": {
+                        "active": "សកម្ម",
+                        "inactive": "អសកម្ម"
+                    }
+                },
+                "validation": {
+                    "name": {
+                        "min": "តួនាទីត្រូវតែបំពេញ"
+                    }
+                }
+            },
+            "button": {
+                "cancel": "បោះបង់",
+                "save": "រក្សាទុក",
+                "saving": "កំពុងរក្សាទុក",
+                "update": "កែប្រែ",
+                "updating": "កំពុងកែប្រែ"
             }
         }
     },

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
 use App\Http\Resources\PermissionResource;
 use App\Http\Requests\Permission\StorePermissionRequest;
@@ -16,7 +15,7 @@ class PermissionController extends Controller
      */
     public function index()
     {
-        $permissions = Permission::latest()->get();
+        $permissions = Permission::orderBy('name', 'asc')->get();
 
         return PermissionResource::collection($permissions);
     }

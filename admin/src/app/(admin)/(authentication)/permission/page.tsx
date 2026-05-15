@@ -1,18 +1,9 @@
 "use client";
 
-import * as React from "react";
+import React, { Suspense } from "react";
 import {
-    Text,
-    Plus,
-    Pencil,
-    Trash2,
+    Plus
 } from "lucide-react";
-import type { Column, ColumnDef, Table } from "@tanstack/react-table";
-import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
-import { DataTable } from "@/components/data-table/data-table";
-import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
-import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
-import { useDataTable } from "@/hooks/use-data-table";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form";
 import * as z from "zod"
@@ -20,7 +11,6 @@ import * as z from "zod"
 import { useTranslations } from 'next-intl';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
     Field,
     FieldGroup,
@@ -35,33 +25,16 @@ import {
     DialogFooter,
     DialogClose,
 } from "@/components/ui/dialog";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-    SelectGroup
-} from "@/components/ui/select"
-import {
-    Status,
-    StatusIndicator,
-    StatusLabel,
-} from "@/components/ui/status";
+import { permissionSchema } from "@/schema/permission";
 import { useConfirm } from "@/app/provider/ConfirmDialogProvider";
 
-interface Permission {
-    id: number;
-    name: string;
-}
-
-const formSchema = z.object({
-    name: z.string()
-});
+import { DataTable } from "@/components/data-table/data-table";
+import { getColumns, Permission } from "./components/datatable-header";
 
 export default function Page() {
     const t = useTranslations('PermissionPage');
-    const form = useForm<z.infer<typeof formSchema>>({
+    const formSchema = React.useMemo(() => permissionSchema(t), [t]);
+    const { control, handleSubmit, reset, formState: { isSubmitting } } = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             name: "",
@@ -70,13 +43,42 @@ export default function Page() {
     const [permissions, setPermissions] = React.useState<Permission[]>([]);
     const [openAddDialog, setOpenAddDialog] = React.useState(false);
     const [selectedId, setSelectedId] = React.useState<number | null>(null);
-    const [name] = useQueryState("name", parseAsString.withDefault(""));
     const confrim = useConfirm();
+
+    const columns = React.useMemo(
+        () =>
+            getColumns(
+            t,
+            async (item) => {
+                setSelectedId(item.id);
+                setOpenAddDialog(true);
+                reset({
+                    name: item.name,
+                });
+            },
+            async (item) => {
+                const ok = await confrim()
+                if (!ok) return;
+                try {
+                    await fetch(`/api/auth/permission/${item.id}`, {
+                        method: "DELETE",
+                    });
+
+                    setPermissions((prev) =>
+                        prev.filter((p) => p.id !== item.id)
+                    );
+                } catch (err) {
+                    console.error("Delete failed:", err);
+                }
+            }
+        ),
+        [t, confrim, reset]
+    );
 
     React.useEffect(() => {
         async function fetchPermissions() {
             try {
-                const res = await fetch(`api/auth/permissions`, {
+                const res = await fetch("api/auth/permission", {
                     headers: {
                         Accept: "application/json",
                     },
@@ -92,26 +94,20 @@ export default function Page() {
 
     async function onSubmit(data: z.infer<typeof formSchema>) {
         try {
-            if (selectedId !== null) {
-                const res = await fetch(`api/auth/permissions/${selectedId}`, {
+            if (selectedId) {
+                const res = await fetch(`api/auth/permission/${selectedId}`, {
                     method: "PATCH",
                     headers: {
                         "Content-Type": "application/json",
                         Accept: "application/json",
                     },
-                    body: JSON.stringify(data)
                 })
-                const updatedItem = await res.json();
+                const updated = await res.json();
 
-                setPermissions((prev) =>
-                    prev.map((item) =>
-                        item.id === Number(selectedId)
-                            ? updatedItem.data.data ?? updatedItem.data
-                            : item
-                    )
-                );
+                console.log(updated)
+                
             } else {
-                const res = await fetch("api/auth/permissions", {
+                const res = await fetch("api/auth/permission", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -121,100 +117,20 @@ export default function Page() {
                 })
 
                 const newItem = await res.json();
-                console.log(newItem)
 
                 setPermissions((prev) => [...prev, newItem.data]);
             }
             setOpenAddDialog(false);
             setSelectedId(null);
-            form.reset();
+            reset();
         } catch(err) {
             console.error("Failed to save category:", err);
         }
     }
-    
-    const handleDelete = async (id: number) => {
-        const ok = await confrim()
-        if (!ok) return;
-
-        try {
-            await fetch(`api/auth/permissions/${id}`, {
-                method: "DELETE",
-            });
-
-            setPermissions((prev) =>
-                prev.filter((item) => item.id !== id)
-            );
-        } catch (err) {
-            console.error("Delete failed:", err);
-        }
-    };
-
-    const filteredData = React.useMemo(() => {
-        return permissions.filter((item) => {
-            const matchesName = name === "" || item.name.toLowerCase().includes(name.toLowerCase());
-            return matchesName;
-        })
-    }, [permissions, name]);
-
-    const columns = React.useMemo<ColumnDef<Permission>[]>(() => [
-        {
-            id: "name",
-            accessorKey: "name",
-            header: ({ column } : { column: Column<Permission, unknown> }) => (
-                <DataTableColumnHeader column={column} label={t("table.header.name")}/>
-            ),
-            cell: ({ cell }) => <div>{cell.getValue<Permission["name"]>()}</div>,
-            meta: {
-                label: "Name", 
-                placeholder: "Search Permission...",
-                variant: "text",
-                icon: Text,
-            },
-            enableColumnFilter: true,
-        },
-        {
-            id: "assigned_to",
-            accessorKey: "assigned_to",
-            header: ({ column } : { column: Column<Permission, unknown> }) => (
-                <DataTableColumnHeader column={column} label={t("table.header.assigned_to")}/>
-            ),
-            cell: ({ cell }) => <div></div>,
-            enableColumnFilter: true,
-        },
-        {
-            id: "created_date",
-            accessorKey: "created_date",
-            header: ({ column } : { column: Column<Permission, unknown> }) => (
-                <DataTableColumnHeader column={column} label={t("table.header.created_date")}/>
-            ),
-            cell: ({ cell }) => <div></div>,
-            enableColumnFilter: true,
-        },
-        {
-            id: "actions",
-            cell: ({ row }) => {
-                const item = row.original;
-                return (
-                    <div className="flex items-center gap-1">
-                        <Button size="sm"><Pencil className="h-5 w-5"/>{t('table.body.actions.edit')}</Button>
-                        <Button size="sm" variant="destructive" onClick={() => handleDelete(item.id)}><Trash2 className="h-5 w-5"/>{t('table.body.actions.delete')}</Button>
-                    </div>
-                )
-            }
-        }
-    ],[]);
-
-    const { table } = useDataTable({
-        data: filteredData,
-        columns,
-        pageCount: 1,
-        getRowId: (row) => row.id.toString(),
-    });
 
     return (
         <>
-            <div>
+            <div className="relative flex flex-col w-full mx-auto px-4 min-[768px]:px-4 min-[0]:px-0">
                 <div className="mb-6">
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                         <div className="space-y-1">
@@ -222,14 +138,69 @@ export default function Page() {
                             <p className="mt-1 text-sm text-muted-foreground">{t('header.subtitle')}</p>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
-                            <Button><Plus className="h-5 w-5"/>{t('header.addButton')}</Button>
+                            <Button onClick={() => {
+                                reset({
+                                    name: ""
+                                })
+                                setOpenAddDialog(true)
+                            }}><Plus className="h-5 w-5"/>{t('header.addButton')}</Button>
                         </div>
                     </div>
                 </div>
-                <DataTable table={table}>
-                    <DataTableToolbar table={table} />
-                </DataTable>
+                <Suspense
+                    fallback={
+                        <></>
+                    }
+                >
+                    <DataTable data={permissions} columns={columns}/>
+                </Suspense>
             </div>
+
+            <Dialog
+                open={openAddDialog}
+                onOpenChange={(open) => {
+                    setOpenAddDialog(open);
+                    if(!open) {
+                        reset();
+                        setSelectedId(null);
+                    }
+                }}
+            >
+                <form id="form-category" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
+                    <DialogContent className="p-6.5 rounded-md ring-0">
+                        <DialogHeader>
+                            <DialogTitle>{selectedId ? t('dialog.editTitle') : t('dialog.addTitle')}</DialogTitle>
+                        </DialogHeader>
+                        <FieldGroup>
+                            <Controller
+                                name="name"
+                                control={control}
+                                render={({ field, fieldState }) => (
+                                    <Field data-invalid={fieldState.invalid}>
+                                        <FieldLabel htmlFor="form-class-name">
+                                            {t('dialog.form.name')}
+                                            <span className="text-destructive">*</span>
+                                        </FieldLabel>
+                                        <Input
+                                            {...field}
+                                            id="form-class-name"
+                                            aria-invalid={fieldState.invalid}
+                                            autoComplete="off"
+                                        />
+                                        {fieldState.invalid && (
+                                            <FieldError errors={[fieldState.error]} />
+                                        )}
+                                    </Field>
+                                )}
+                            />
+                        </FieldGroup>
+                        <DialogFooter>
+                            <DialogClose render={<Button variant="outline">{t('dialog.button.cancel')}</Button>} />
+                            <Button type="submit" form="form-category" disabled={isSubmitting}>{isSubmitting ? selectedId ? t('dialog.button.updating') : t("dialog.button.saving") : selectedId ? t("dialog.button.update") : t("dialog.button.save")}</Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </form>
+            </Dialog>
         </>
     )
 }
