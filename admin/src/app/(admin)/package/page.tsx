@@ -1,18 +1,10 @@
 "use client";
 
-import * as React from "react";
+import React, { Suspense } from "react";
 import {
-    Text,
-    Plus,
-    Pencil,
-    Trash2,
+    Plus
 } from "lucide-react";
-import type { Column, ColumnDef, Table } from "@tanstack/react-table";
-import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
 import { DataTable } from "@/components/data-table/data-table";
-import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
-import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
-import { useDataTable } from "@/hooks/use-data-table";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form";
 import * as z from "zod"
@@ -20,7 +12,6 @@ import * as z from "zod"
 import { useTranslations } from 'next-intl';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea"
 import {
     Field,
@@ -36,11 +27,7 @@ import {
     DialogFooter,
     DialogClose,
 } from "@/components/ui/dialog";
-import {
-    Status,
-    StatusIndicator,
-    StatusLabel,
-} from "@/components/ui/status";
+
 import {
     Select,
     SelectContent,
@@ -50,42 +37,13 @@ import {
     SelectGroup
 } from "@/components/ui/select"
 import { useConfirm } from "@/app/provider/ConfirmDialogProvider";
-
-interface Package {
-    id: number;
-    name: string;
-    duration: string;
-    price: string;
-    description: string;
-    status: "active" | "inactive";
-}
-const createFormSchema = (t: any) => 
-    z.object({
-        name: z
-            .string()
-            .trim()
-            .min(1, { message: t('dialog.form.validation.name.min') }),
-        duration: z
-            .string({
-                error: t('dialog.form.validation.duration.min')
-            }),
-        price: z
-            .string({
-                error: t('dialog.form.validation.price.min') 
-            }),
-        description: z
-            .string()
-            .trim()
-            .max(200, { message: t('dialog.form.validation.description.max') })
-            .optional()
-            .or(z.literal("")),
-        status: z.enum(["active", "inactive"]),
-    });
+import { packageSchema } from "@/schema/package";
+import { getColumns, Package } from "./components/datatable-header";
 
 export default function Page() {
     const t = useTranslations('PackagePage');
-    const formSchema = React.useMemo(() => createFormSchema(t), [t]);
-    const form = useForm<z.infer<typeof formSchema>>({
+    const formSchema = React.useMemo(() => packageSchema(t), [t]);
+    const { control, handleSubmit, reset, formState: { isSubmitting } } = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             name: "",
@@ -98,9 +56,41 @@ export default function Page() {
     const [packages, setPackages] = React.useState<Package[]>([]);
     const [openAddDialog, setOpenAddDialog] = React.useState(false);
     const [selectedId, setSelectedId] = React.useState<number | null>(null);
-    const [name] = useQueryState("name", parseAsString.withDefault(""));
-    const [status] = useQueryState("status", parseAsArrayOf(parseAsString).withDefault([]));
     const confrim = useConfirm();
+
+    const columns = React.useMemo(
+        () =>
+        getColumns(
+            t,
+            async (item) => {
+                setSelectedId(item.id);
+                setOpenAddDialog(true);
+                reset({
+                    name: item.name,
+                    duration: item.duration,
+                    price: item.price,
+                    description: item.description,
+                    status: item.status,
+                });
+            },
+            async (item) => {
+                const ok = await confrim()
+                if (!ok) return;
+                try {
+                    await fetch(`/api/package/${item.id}`, {
+                        method: "DELETE",
+                    });
+
+                    setPackages((prev) =>
+                        prev.filter((p) => p.id !== item.id)
+                    );
+                } catch (err) {
+                    console.error("Delete failed:", err);
+                }
+            }
+        ),
+        [t, confrim, reset]
+    );
 
     React.useEffect(() => {
         async function fetchPackages() {
@@ -156,127 +146,11 @@ export default function Page() {
             }
             setOpenAddDialog(false);
             setSelectedId(null);
-            form.reset();
+            reset();
         } catch(err) {
             console.error("Failed to save package:", err);
         }
     }
-
-    const handleDelete = async (id: number) => {
-        const ok = await confrim()
-        if (!ok) return;
-
-        try {
-            await fetch(`/api/package/${id}`, {
-                method: "DELETE",
-            });
-
-            setPackages((prev) =>
-                prev.filter((item) => item.id !== id)
-            );
-        } catch (err) {
-            console.error("Delete failed:", err);
-        }
-    };
-
-    const filteredData = React.useMemo(() => {
-        return packages.filter((item) => {
-            const matchesName = name === "" || item.name.toLowerCase().includes(name.toLowerCase());
-            const matchesStatus = status.length === 0 || status.includes(item.status);
-
-            return matchesName && matchesStatus;
-        })
-    }, [packages, name, status]);
-
-    const columns = React.useMemo<ColumnDef<Package>[]>(
-        () => [
-            {
-                id: "name",
-                accessorKey: "name",
-                header: ({ column } : { column: Column<Package, unknown> }) => (
-                    <DataTableColumnHeader column={column} label={t("table.header.name")}/>
-                ),
-                cell: ({ cell }) => <div className="w-full py-4">{cell.getValue<Package["name"]>()}</div>,
-                meta: {
-                    label: "Name", 
-                    placeholder: "Search names...",
-                    variant: "text",
-                    icon: Text,
-                },
-                enableColumnFilter: true
-            },
-            {
-                id: "price",
-                accessorKey: "price",
-                header: ({ column } : { column: Column<Package, unknown> }) => (
-                    <DataTableColumnHeader column={column} label={t("table.header.price")}/>
-                ),
-                cell: ({ cell }) => <div className="w-full py-4">{cell.getValue<Package["price"]>()}</div>,
-                meta: {
-                    label: "Price", 
-                },
-            },
-            {
-                id: "status",
-                accessorKey: "status",
-                header: ({ column } : { column: Column<Package, unknown> }) => (
-                    <DataTableColumnHeader column={column} label={t("table.header.status")}/>
-                ),
-                cell: ({ cell }) => {
-                    const status = cell.getValue<Package["status"]>();
-                    const statusClass = status === "active" ? "success" : "error";
-                    return (
-                        <Status variant={statusClass}>
-                            <StatusIndicator />
-                            <StatusLabel>
-                                {status === "active"
-                                    ? t("table.body.status.active")
-                                    : t("table.body.status.inactive")}
-                            </StatusLabel>
-                        </Status>
-                    );
-                },
-                meta: {
-                    label: "Status",
-                    variant: "multiSelect",
-                    options: [
-                        { label: "Active", value: "active" },
-                        { label: "Inactive", value: "inactive" },
-                    ],
-                },
-                enableColumnFilter: true,
-            },
-            {
-                id: "actions",
-                cell: ({ row }) => {
-                    const item = row.original;
-                    return (
-                        <div className="flex items-center gap-1">
-                            <Button size="sm" onClick={() => {
-                                setSelectedId(item.id);
-                                form.reset({
-                                    name: item.name,
-                                    duration: item.duration,
-                                    price: item.price,
-                                    description: item.description,
-                                    status: item.status,
-                                });
-                                setOpenAddDialog(true);
-                            }}><Pencil className="h-5 w-5"/>{t('table.body.actions.edit')}</Button>
-                            <Button size="sm" variant="destructive" onClick={() => handleDelete(item.id)}><Trash2 className="h-5 w-5"/>{t('table.body.actions.delete')}</Button>
-                        </div>
-                    )
-                },
-            }
-        ],[form],
-    )
-
-    const { table } = useDataTable({
-        data: filteredData,
-        columns,
-        pageCount: Math.ceil(filteredData.length / 10),
-        getRowId: (row) => row.id.toString(),
-    });
 
     return (
         <>
@@ -288,22 +162,17 @@ export default function Page() {
                             <p className="mt-1 text-sm text-muted-foreground">{t('header.subtitle')}</p>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
-                            <Button onClick={() => {
-                                form.reset({
-                                    name: "",
-                                    duration: "",
-                                    price: "",
-                                    description: "",
-                                    status: "active",
-                                })
-                                setOpenAddDialog(true)
-                            }}><Plus className="h-5 w-5"/>{t('header.addButton')}</Button>
+                            <Button onClick={() => {setOpenAddDialog(true)}}><Plus className="h-5 w-5"/>{t('header.addButton')}</Button>
                         </div>
                     </div>
                 </div>
-                <DataTable table={table}>
-                    <DataTableToolbar table={table} />
-                </DataTable>
+                <Suspense
+                    fallback={
+                        <></>
+                    }
+                >
+                    <DataTable data={packages} columns={columns}/>
+                </Suspense>
             </div>
 
             <Dialog
@@ -311,12 +180,12 @@ export default function Page() {
                 onOpenChange={(open) => {
                     setOpenAddDialog(open);
                     if (!open) {
-                        form.reset();
+                        reset();
                         setSelectedId(null);
                     }
                 }}
             >
-                <form id="form-package" onSubmit={form.handleSubmit(onSubmit)} autoComplete="off">
+                <form id="form-package" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>{selectedId ? t('dialog.editTitle') : t('dialog.addTitle')}</DialogTitle>
@@ -324,7 +193,7 @@ export default function Page() {
                         <FieldGroup>
                             <Controller
                                 name="name"
-                                control={form.control}
+                                control={control}
                                 render={({ field, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid}>
                                         <FieldLabel htmlFor="form-name">
@@ -345,7 +214,7 @@ export default function Page() {
                             />
                             <Controller
                                 name="duration"
-                                control={form.control}
+                                control={control}
                                 render={({ field, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid}>
                                         <FieldLabel htmlFor="form-duration">
@@ -366,7 +235,7 @@ export default function Page() {
                             />
                             <Controller
                                 name="price"
-                                control={form.control}
+                                control={control}
                                 render={({ field, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid}>
                                         <FieldLabel htmlFor="form-price">
@@ -387,7 +256,7 @@ export default function Page() {
                             />
                             <Controller
                                 name="description"
-                                control={form.control}
+                                control={control}
                                 render={({ field, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid}>
                                         <FieldLabel htmlFor="form-description">
@@ -397,7 +266,6 @@ export default function Page() {
                                             {...field}
                                             id="form-description"
                                             aria-invalid={fieldState.invalid}
-                                            autoComplete="off"
                                         />
                                         {fieldState.invalid && (
                                             <FieldError errors={[fieldState.error]} />
@@ -407,7 +275,7 @@ export default function Page() {
                             />
                             <Controller
                                 name="status"
-                                control={form.control}
+                                control={control}
                                 render={({ field, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid}>
                                         <FieldLabel htmlFor="form-category-status">
@@ -419,7 +287,7 @@ export default function Page() {
                                             defaultValue={field.value}
                                             onValueChange={field.onChange}
                                         >
-                                            <SelectTrigger>
+                                            <SelectTrigger aria-invalid={fieldState.invalid}>
                                                 <SelectValue placeholder={t('dialog.form.select.placeholder')} />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -439,7 +307,7 @@ export default function Page() {
                         </FieldGroup>
                         <DialogFooter>
                             <DialogClose render={<Button variant="outline">{t('dialog.button.cancel')}</Button>} />
-                            <Button type="submit" form="form-package">{selectedId ? t('dialog.button.update') : t('dialog.button.save')}</Button>
+                            <Button type="submit" form="form-package" disabled={isSubmitting}>{isSubmitting ? selectedId ? t('dialog.button.updating') : t("dialog.button.saving") : selectedId ? t("dialog.button.update") : t("dialog.button.save")}</Button>
                         </DialogFooter>
                     </DialogContent>
                 </form>

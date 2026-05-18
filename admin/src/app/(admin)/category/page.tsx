@@ -1,16 +1,10 @@
 "use client";
 
-import * as React from "react";
+import React, { Suspense } from "react";
 import {
-    Text,
-    Plus,
-    Pencil,
-    Trash2,
+    Plus
 } from "lucide-react";
-import type { Column, ColumnDef, PaginationState } from "@tanstack/react-table";
 import { DataTable } from "@/components/data-table/data-table";
-import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
-import { useDataTable } from "@/hooks/use-data-table";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form";
 import * as z from "zod"
@@ -40,35 +34,57 @@ import {
     SelectValue,
     SelectGroup
 } from "@/components/ui/select"
-import {
-    Status,
-    StatusIndicator,
-    StatusLabel,
-} from "@/components/ui/status";
+
 import { useConfirm } from "@/app/provider/ConfirmDialogProvider";
 import { categorySchema } from "@/schema/category";
 
-interface Category{
-    id: number;
-    name: string;
-    status: "active" | "inactive";
-}
+import { getColumns, Category } from "./components/datatable-header";
 
 export default function Page() {
     const t = useTranslations('CategoryPage');
     const formSchema = React.useMemo(() => categorySchema(t), [t]);
-    const form = useForm<z.infer<typeof formSchema>>({
+    const { control, handleSubmit, reset, formState: { isSubmitting } } = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             name: "",
             status: "active",
         }
     })
-    const [data, setData] = React.useState<Category[]>([]);
+    const [categorys, setCategorys] = React.useState<Category[]>([]);
     const [openAddDialog, setOpenAddDialog] = React.useState(false);
     const [selectedId, setSelectedId] = React.useState<number | null>(null);
-
     const confrim = useConfirm();
+
+    const columns = React.useMemo(
+        () =>
+        getColumns(
+            t,
+            async (item) => {
+                setSelectedId(item.id);
+                setOpenAddDialog(true);
+                reset({
+                    name: item.name,
+                    status: item.status,
+                });
+            },
+            async (item) => {
+                const ok = await confrim()
+                if (!ok) return;
+                try {
+                    await fetch(`/api/category/${item.id}`, {
+                        method: "DELETE",
+                    });
+
+                    setCategorys((prev) =>
+                        prev.filter((p) => p.id !== item.id)
+                    );
+                } catch (err) {
+                    console.error("Delete failed:", err);
+                }
+            }
+        ),
+        [t, confrim, reset]
+    );
 
     React.useEffect(() => {
         async function fetchCategorys() {
@@ -79,7 +95,7 @@ export default function Page() {
                     },
                 });
                 const json = await res.json();
-                setData(json.data.map((item: any) => item.data ?? item));
+                setCategorys(json.data.map((item: any) => item.data ?? item));
             } catch (err) {
                 console.error("Failed to fetch categorys:", err);
             }
@@ -100,7 +116,7 @@ export default function Page() {
                 })
                 const updatedItem = await res.json();
 
-                setData((prev) =>
+                setCategorys((prev) =>
                     prev.map((item) =>
                         item.id === Number(selectedId)
                             ? updatedItem.data.data ?? updatedItem.data
@@ -118,111 +134,15 @@ export default function Page() {
                 })
 
                 const newItem = await res.json();
-                console.log(newItem)
-
-                setData((prev) => [...prev, newItem.data]);
+                setCategorys((prev) => [...prev, newItem.data]);
             }
             setOpenAddDialog(false);
             setSelectedId(null);
-            form.reset();
+            reset();
         } catch(err) {
             console.error("Failed to save category:", err);
         }
     }
-
-    const handleDelete = async (id: number) => {
-        const ok = await confrim()
-        if (!ok) return;
-
-        try {
-            await fetch(`/api/category/${id}`, {
-                method: "DELETE",
-            });
-
-            setData((prev) =>
-                prev.filter((item) => item.id !== id)
-            );
-        } catch (err) {
-            console.error("Delete failed:", err);
-        }
-    };
-
-    const columns = React.useMemo<ColumnDef<Category>[]>(
-        () => [
-            {
-                id: "name",
-                accessorKey: "name",
-                header: ({ column } : { column: Column<Category, unknown> }) => (
-                    <DataTableColumnHeader column={column} label={t("table.header.name")}/>
-                ),
-                cell: ({ cell }) => <div className="w-full py-4">{cell.getValue<Category["name"]>()}</div>,
-                meta: {
-                    label: "Name", 
-                    placeholder: "Search names...",
-                    variant: "text",
-                    icon: Text,
-                },
-                enableColumnFilter: true
-            },
-            {
-                id: "status",
-                accessorKey: "status",
-                header: ({ column } : { column: Column<Category, unknown> }) => (
-                    <DataTableColumnHeader column={column} label={t("table.header.status")}/>
-                ),
-                cell: ({ cell }) => {
-                    const status = cell.getValue<Category["status"]>();
-                    const statusClass = status === "active" ? "success" : "error";
-                    return (
-                        <Status variant={statusClass}>
-                            <StatusIndicator />
-                            <StatusLabel>
-                                {status === "active"
-                                    ? t("table.body.status.active")
-                                    : t("table.body.status.inactive")}
-                            </StatusLabel>
-                        </Status>
-                    );
-                },
-            },
-            {
-                id: "actions",
-                header: ({ column } : { column: Column<Category, unknown> }) => (
-                    <DataTableColumnHeader column={column} label={t("table.header.action")}/>
-                ),
-                cell: ({ row }) => {
-                    const item = row.original;
-                    return (
-                        <div className="flex items-center gap-1">
-                            <Button size="sm" onClick={() => {
-                                setSelectedId(item.id);
-                                form.reset({
-                                    name: item.name,
-                                    status: item.status,
-                                });
-                                setOpenAddDialog(true);
-                            }}><Pencil className="h-5 w-5"/>{t('table.body.actions.edit')}</Button>
-                            <Button size="sm" variant="destructive" onClick={() => handleDelete(item.id)}><Trash2 className="h-5 w-5"/>{t('table.body.actions.delete')}</Button>
-                        </div>
-                    )
-                },
-            }
-        ],[form]
-    )
-
-    const { table } = useDataTable({
-        data,
-        columns,
-        pageCount: -1,
-        initialState: {
-            sorting: [{ id: "name", desc: true }],
-            pagination: {
-                pageIndex: 0,
-                pageSize: 10,
-            },
-        },
-        getRowId: (row) => row.id.toString(),
-    });
     
     return (
         <>
@@ -235,7 +155,7 @@ export default function Page() {
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
                             <Button onClick={() => {
-                                form.reset({
+                                reset({
                                     name: ""
                                 })
                                 setOpenAddDialog(true)
@@ -243,7 +163,13 @@ export default function Page() {
                         </div>
                     </div>
                 </div>
-                <DataTable table={table}/>
+                <Suspense
+                    fallback={
+                        <></>
+                    }
+                >
+                    <DataTable data={categorys} columns={columns}/>
+                </Suspense>
             </div>
 
             <Dialog
@@ -251,12 +177,12 @@ export default function Page() {
                 onOpenChange={(open) => {
                     setOpenAddDialog(open);
                     if(!open) {
-                        form.reset();
+                        reset();
                         setSelectedId(null);
                     }
                 }}
             >
-                <form id="form-category" onSubmit={form.handleSubmit(onSubmit)} autoComplete="off">
+                <form id="form-category" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
                     <DialogContent className="p-6.5 rounded-md ring-0">
                         <DialogHeader>
                             <DialogTitle>{selectedId ? t('dialog.editTitle') : t('dialog.addTitle')}</DialogTitle>
@@ -264,7 +190,7 @@ export default function Page() {
                         <FieldGroup>
                             <Controller
                                 name="name"
-                                control={form.control}
+                                control={control}
                                 render={({ field, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid}>
                                         <FieldLabel htmlFor="form-category-name">
@@ -285,7 +211,7 @@ export default function Page() {
                             />
                             <Controller
                                 name="status"
-                                control={form.control}
+                                control={control}
                                 render={({ field, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid}>
                                         <FieldLabel htmlFor="form-category-status">
@@ -293,11 +219,12 @@ export default function Page() {
                                             <span className="text-destructive">*</span>
                                         </FieldLabel>
                                         <Select
+                                            id="form-category-status"
                                             value={field.value ?? ""}
                                             defaultValue={field.value}
                                             onValueChange={field.onChange}
                                         >
-                                            <SelectTrigger>
+                                            <SelectTrigger aria-invalid={fieldState.invalid}>
                                                 <SelectValue placeholder={t('dialog.form.select.placeholder')} />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -316,7 +243,7 @@ export default function Page() {
                         </FieldGroup>
                         <DialogFooter>
                             <DialogClose render={<Button variant="outline">{t('dialog.button.cancel')}</Button>} />
-                            <Button type="submit" form="form-category">{selectedId ? t('dialog.button.update') : t('dialog.button.save')}</Button>
+                            <Button type="submit" form="form-category" disabled={isSubmitting}>{isSubmitting ? selectedId ? t('dialog.button.updating') : t("dialog.button.saving") : selectedId ? t("dialog.button.update") : t("dialog.button.save")}</Button>
                         </DialogFooter>
                     </DialogContent>
                 </form>

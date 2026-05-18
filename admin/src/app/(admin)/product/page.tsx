@@ -1,45 +1,47 @@
 "use client";
 
-import * as React from "react";
-import type { Column, ColumnDef } from "@tanstack/react-table";
+import React, { Suspense } from "react";
 import {
-    Text,
-    Plus,
-    Pencil,
-    Trash2,
+    Plus
 } from "lucide-react";
-import { parseAsString, useQueryState } from "nuqs";
+import { useTranslations } from 'next-intl';
 import { DataTable } from "@/components/data-table/data-table";
-import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
-import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
-import { useDataTable } from "@/hooks/use-data-table";
-import { formatCurrency } from "@/lib/format-currency";
-
 import { Button } from "@/components/ui/button";
-import {
-    Avatar,
-    AvatarImage
-} from "@/components/ui/avatar"
 
-interface Product {
-    id: number;
-    name: string;
-    description: string;
-    cost_price: string;
-    sell_price: string;
-    stock_qty: string;
-    image: string;
-    created_at: string;
-    category: {
-        id: number;
-        name: string;
-    };
-}
-
+import { useConfirm } from "@/app/provider/ConfirmDialogProvider";
+import { getColumns, Product } from "./components/datatable-header";
 
 export default function Page() {
+    const t = useTranslations('ProductPage');
     const [products, setProducts] = React.useState<Product[]>([]);
-    const [name] = useQueryState("name", parseAsString.withDefault(""));
+    const [selectedId, setSelectedId] = React.useState<number | null>(null);
+    const confrim = useConfirm();
+
+    const columns = React.useMemo(
+        () =>
+        getColumns(
+            t,
+            async (item) => {
+                setSelectedId(item.id);
+            },
+            async (item) => {
+                const ok = await confrim()
+                if (!ok) return;
+                try {
+                    await fetch(`/api/category/${item.id}`, {
+                        method: "DELETE",
+                    });
+
+                    setProducts((prev) =>
+                        prev.filter((p) => p.id !== item.id)
+                    );
+                } catch (err) {
+                    console.error("Delete failed:", err);
+                }
+            }
+        ),
+        [t, confrim]
+    );
 
     React.useEffect(() => {
         async function fetchProducts() {
@@ -58,148 +60,28 @@ export default function Page() {
         fetchProducts();
     }, []);
 
-    const filteredData = React.useMemo(() => {
-        return products.filter((item) => {
-            const matchesName = name === "" || item.name.toLowerCase().includes(name.toLowerCase());
-
-            return matchesName;
-        })
-    }, [products, name]);
-
-    const columns = React.useMemo<ColumnDef<Product>[]>(() => [
-        {
-            id: "products",
-            accessorKey: "products",
-            header: ({ column } : { column: Column<Product, unknown> }) => (
-                <DataTableColumnHeader column={column} label="Products"/>
-            ),
-            cell: ({ row }) => {
-                const item = row.original;
-                return (
-                    <div className="flex items-center w-full gap-3.5 py-4">
-                        <Avatar className="h-16 w-16 rounded-xl">
-                            <AvatarImage className="rounded-xl" src="https://api-prod-minimal-v700.pages.dev/assets/images/m-product/product-1.webp" />
-                        </Avatar>
-                        <div className="flex-[1 1 auto] min-w-0 m-0">
-                            <span className="block m-0 text-sm font-semibold leading-5.5 text-ellipsis whitespace-nowrap overflow-hidden">{item.name}</span>
-                            <span className="block m-0 text-sm font-normal text-foreground/50">{item.category?.name}</span>
-                        </div>
-                    </div>
-                )
-            },
-            meta: {
-                label: "Products", 
-                placeholder: "Search products...",
-                variant: "text",
-                icon: Text,
-            },
-            enableColumnFilter: true,
-            size: 360,
-        },
-        {
-            id: "created_at",
-            accessorKey: "created_at",
-            header: ({ column } : { column: Column<Product, unknown> }) => (
-                <DataTableColumnHeader column={column} label="Create at"/>
-            ),
-            cell: ({ cell }) => {
-                const date = new Date(cell.getValue<string>());
-                return (
-                    <div>
-                        {date.toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "2-digit",
-                            year: "numeric",
-                        }).replace(",", "")}
-                    </div>
-                );
-            },
-            meta: {
-                label: "Create at", 
-            },
-        },
-        {
-            id: "cost_price",
-            accessorKey: "cost_price",
-            header: ({ column } : { column: Column<Product, unknown> }) => (
-                <DataTableColumnHeader column={column} label="Cost Price"/>
-            ),
-            cell: ({ row }) => (
-                <div className="font-medium">
-                    {formatCurrency(row.getValue("cost_price"))}
-                </div>
-            ),
-            meta: {
-                label: "Cost Price", 
-            },
-        },
-        {
-            id: "sell_price",
-            accessorKey: "sell_price",
-            header: ({ column } : { column: Column<Product, unknown> }) => (
-                <DataTableColumnHeader column={column} label="Sell Price"/>
-            ),
-            cell: ({ row }) => (
-                <div className="font-medium">
-                    {formatCurrency(row.getValue("sell_price"))}
-                </div>
-            ),
-            meta: {
-                label: "Sell Price", 
-            },
-        },
-        {
-            id: "stock_qty",
-            accessorKey: "stock_qty",
-            header: ({ column } : { column: Column<Product, unknown> }) => (
-                <DataTableColumnHeader column={column} label="Quantity"/>
-            ),
-            cell: ({ cell }) => <div>{cell.getValue<Product["stock_qty"]>()}</div>,
-            meta: {
-                label: "Quantity", 
-            },
-        },
-        {
-            id: "actions",
-            cell: ({ row }) => {
-                const item = row.original;
-                return (
-                    <div className="flex items-center gap-1">
-                        <Button size="sm"><Pencil className="h-5 w-5"/>Edit</Button>
-                        <Button size="sm" variant="destructive"><Trash2 className="h-5 w-5"/>Delete</Button>
-                    </div>
-                )
-            }
-        }
-    ],[])
-
-    const { table } = useDataTable({
-        data: filteredData,
-        columns,
-        pageCount: Math.ceil(filteredData.length / 10),
-        getRowId: (row) => row.id.toString(),
-    });
-
     return (
         <>
             <div>
                 <div className="mb-6">
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                         <div className="space-y-1">
-                            <h2 className="text-2xl font-bold tracking-tight">Products</h2>
-                            <p className="mt-1 text-sm text-muted-foreground">Manage fitness products.</p>
+                            <h2 className="text-2xl font-bold tracking-tight">{t('header.title')}</h2>
+                            <p className="mt-1 text-sm text-muted-foreground">{t('header.list_page.subtitle')}</p>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
-                            <Button><Plus className="h-5 w-5"/>Add Product</Button>
+                            <Button><Plus className="h-5 w-5"/>{t('header.list_page.addButton')}</Button>
                         </div>
                     </div>
                 </div>
                 <div className="relative w-full overflow-x-auto">
-                    <DataTable
-                        table={table}
+                    <Suspense
+                        fallback={
+                            <></>
+                        }
                     >
-                        <DataTableToolbar table={table} />
-                    </DataTable>
+                        <DataTable data={products} columns={columns}/>
+                    </Suspense>
                 </div>
             </div>
         </>

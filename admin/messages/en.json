@@ -60,13 +60,26 @@
     "CategoryPage": {
         "header": {
             "title": "Categorys",
-            "subtitle": "Manage product categorys.",
-            "addButton": "Add Category"
+            "list_page": {
+                "subtitle": "Manage product listings and delete",
+                "addButton": "Add product"
+            },
+            "add_page": {
+                "subtitle": "Manage product additions",
+                "back_to_list": "Back to list"
+            },
+            "edit_page": {
+                "subtitle": "Manage product modifications",
+                "back_to_list": "Back to list"
+            }
         },
         "table": {
             "header": {
-                "name": "Name",
-                "status": "Status",
+                "name": "Product",
+                "create_at": "Create at",
+                "cost_price": "Cost Price",
+                "sell_price": "Sell Price",
+                "quantity": "Quantity",
                 "action": "Action"
             },
             "body": {
@@ -94,13 +107,18 @@
                     }
                 },
                 "validation": {
-                    "name": "Name is required"
+                    "name": "Name is required",
+                    "status": {
+                        "error": "Status must be either active or inactive"
+                    }
                 }
             },
             "button": {
                 "cancel": "Cancel",
                 "save": "Save changes",
-                "update": "Update"
+                "saving": "Saving",
+                "update": "Update",
+                "updating": "Updating"
             }
         }
     },
@@ -156,13 +174,18 @@
                     },
                     "description": {
                         "max": "Description must be at most 200 characters."
+                    },
+                    "status": {
+                        "error": "Status must be either active or inactive"
                     }
                 }
             },
             "button": {
                 "cancel": "Cancel",
                 "save": "Save changes",
-                "update": "Update"
+                "saving": "Saving",
+                "update": "Update",
+                "updating": "Updating"
             }
         }
     },

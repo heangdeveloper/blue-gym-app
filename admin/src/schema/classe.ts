@@ -22,7 +22,7 @@ export const classeSchema = (t: any) =>
             .string()
             .min(1, t('dialog.form.validation.end_time.min')),
         status: z.enum(["active", "inactive"], {
-            message: t('dialog.form.validation.status.error') ,
+            message: t('dialog.form.validation.status.error'),
         }),
     });
 
