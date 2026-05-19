@@ -16,7 +16,13 @@ use App\Http\Controllers\Api\RoleController;
 // Public routes
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::apiResources([
+
+
+// Protected routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/me', [AuthController::class, 'me']);
+    Route::apiResources([
         'packages' => PackageController::class,
         'classes' => ClasseController::class,
         'branchs' => BranchController::class,
@@ -27,11 +33,5 @@ Route::apiResources([
         'permissions' => PermissionController::class,
         'roles' => RoleController::class,
     ]);
-
-// Protected routes
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/me', [AuthController::class, 'me']);
-    
 });
 

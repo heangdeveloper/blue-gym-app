@@ -41,6 +41,21 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
     const t = useTranslations("sidbar");
     const router = useRouter();
     const pathname = usePathname();
+    const [openMenus, setOpenMenus] = React.useState<Record<string, boolean>>({});
+
+    React.useEffect(() => {
+        const activeMenus: Record<string, boolean> = {};
+
+        navigationItems.forEach(group => {
+            group.items.forEach(item => {
+                if (item.children?.some(sub => pathname === sub.href)) {
+                    activeMenus[item.label] = true;
+                }
+            });
+        });
+
+        setOpenMenus(activeMenus);
+    }, [pathname]);
 
     const isChildActive = (item: any) =>
     item.children?.some((sub: any) => pathname === sub.href);
@@ -82,7 +97,14 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
                                         <Collapsible
                                             key={item.label}
                                             className="group"
-                                            defaultOpen={isChildActive(item)}>
+                                            open={openMenus[item.label] || false}
+                                            onOpenChange={(open) =>
+                                                setOpenMenus(prev => ({
+                                                    ...prev,
+                                                    [item.label]: open
+                                                }))
+                                            }
+                                        >
                                             <SidebarMenuItem>
                                                 <CollapsibleTrigger
                                                     render={

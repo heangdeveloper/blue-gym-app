@@ -103,9 +103,6 @@ export default function Page() {
                     },
                 })
                 const updated = await res.json();
-
-                console.log(updated)
-                
             } else {
                 const res = await fetch("api/auth/permission", {
                     method: "POST",
@@ -115,9 +112,7 @@ export default function Page() {
                     },
                     body: JSON.stringify(data)
                 })
-
                 const newItem = await res.json();
-
                 setPermissions((prev) => [...prev, newItem.data]);
             }
             setOpenAddDialog(false);
@@ -130,7 +125,7 @@ export default function Page() {
 
     return (
         <>
-            <div className="relative flex flex-col w-full mx-auto px-4 min-[768px]:px-4 min-[0]:px-0">
+            <div className="relative flex flex-col w-full mx-auto">
                 <div className="mb-6">
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                         <div className="space-y-1">

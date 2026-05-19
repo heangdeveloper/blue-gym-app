@@ -1,18 +1,10 @@
 "use client";
 
-import * as React from "react";
+import React, { Suspense } from "react";
 import {
-    Text,
-    Plus,
-    Pencil,
-    Trash2,
+    Plus
 } from "lucide-react";
-import type { Column, ColumnDef, Table } from "@tanstack/react-table";
-import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
 import { DataTable } from "@/components/data-table/data-table";
-import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
-import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
-import { useDataTable } from "@/hooks/use-data-table";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form";
 import * as z from "zod"
@@ -44,14 +36,7 @@ import {
 } from "@/components/ui/select"
 import { branchSchema } from "@/schema/branche";
 import { useConfirm } from "@/app/provider/ConfirmDialogProvider";
-
-interface Branche {
-    id: number;
-    name: string;
-    location: string;
-    phone: string;
-    status: "active" | "inactive";
-}
+import { getColumns, Branche } from "./components/datatable-header";
 
 export default function Page() {
     const t = useTranslations('BranchPage');
@@ -70,14 +55,96 @@ export default function Page() {
     const [selectedId, setSelectedId] = React.useState<number | null>(null);
     const confrim = useConfirm();
 
+    const columns = React.useMemo(
+        () =>
+            getColumns(
+            t,
+            async (item) => {
+                setSelectedId(item.id);
+                setOpenAddDialog(true);
+                reset({
+                    name: item.name,
+                    location: item.location,
+                    phone: item.phone,
+                    status: item.status
+                });
+            },
+            async (item) => {
+                const ok = await confrim()
+                if (!ok) return;
+                try {
+                    await fetch(`/api/branch/${item.id}`, {
+                        method: "DELETE",
+                    });
+
+                    setBranches((prev) =>
+                        prev.filter((p) => p.id !== item.id)
+                    );
+                } catch (err) {
+                    console.error("Delete failed:", err);
+                }
+            }
+        ),
+        [t, confrim, reset]
+    );
+
+    React.useEffect(() => {
+        async function fetchBranchs() {
+            try {
+                const res = await fetch("api/branch", {
+                    headers: {
+                        Accept: "application/json",
+                    },
+                });
+                const json = await res.json();
+                setBranches(json.data.map((item: any) => item.data ?? item));
+            } catch (err) {
+                console.error("Failed to fetch:", err);
+            }
+        }
+        fetchBranchs();
+    }, []);
 
     async function onSubmit(data: z.infer<typeof formSchema>) {
         try {
+            if (selectedId !== null) {
+                const res = await fetch(`api/branch/${selectedId}`, {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Accept: "application/json",
+                    },
+                    body: JSON.stringify(data)
+                })
+                const updatedItem = await res.json();
 
-        } catch(e) {
-            
+                setBranches((prev) =>
+                    prev.map((item) =>
+                        item.id === Number(selectedId)
+                            ? updatedItem.data.data ?? updatedItem.data
+                            : item
+                    )
+                );
+            } else {
+                const res = await fetch("api/branch", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Accept: "application/json",
+                    },
+                    body: JSON.stringify(data)
+                })
+                const newItem = await res.json();
+                setBranches((prev) => [...prev, newItem.data]);
+            }
+            setOpenAddDialog(false);
+            setSelectedId(null);
+            reset();
+        } catch(err) {
+            console.error("Failed to save category:", err);
         }
     }
+
     return (
         <>
             <div className="relative flex flex-col w-full mx-auto px-4 min-[768px]:px-4 min-[0]:px-0">
@@ -100,7 +167,13 @@ export default function Page() {
                         </div>
                     </div>
                 </div>
-                
+                <Suspense
+                    fallback={
+                        <></>
+                    }
+                >
+                    <DataTable data={branches} columns={columns}/>
+                </Suspense>
             </div>
 
             <Dialog
