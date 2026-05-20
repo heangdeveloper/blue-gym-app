@@ -34,6 +34,7 @@ import { loginSchema } from "@/schema/login";
 export default function Page() {
     const t = useTranslations('LoginPage');
     const [serverError, setServerError] = React.useState<string | null>(null);
+    const [error, setError] = React.useState<string | null>(null);
     const [isLoading, setIsLoading] = React.useState(false);
     const formSchema = React.useMemo(() => loginSchema(t), [t]);
     const { control, handleSubmit, reset, formState: { isSubmitting } } = useForm<z.infer<typeof formSchema>>({
@@ -61,15 +62,18 @@ export default function Page() {
             if (!res.ok) {
                 throw new Error(`Login failed with status: ${res.status}`);
             }
-            
             const result = await res.json();
-
             if (result.token) {
-                
+                setTimeout(() => {
+                    router.push("/dashboard");
+                }, 100);
+            } else {
+                setError("Invalid response - no token received");
             }
 
         } catch(error) {
             console.error("Login Failed: ", error);
+            setError("Login failed. Please try again");
         }
     }
 

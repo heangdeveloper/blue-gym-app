@@ -146,7 +146,7 @@ export default function Page() {
     
     return (
         <>
-            <div className="relative flex flex-col w-full mx-auto px-4 min-[768px]:px-4 min-[0]:px-0">
+            <div className="relative flex flex-col w-full mx-auto">
                 <div className="mb-6">
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                         <div className="space-y-1">
@@ -154,12 +154,7 @@ export default function Page() {
                             <p className="mt-1 text-sm text-muted-foreground">{t('header.subtitle')}</p>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
-                            <Button onClick={() => {
-                                reset({
-                                    name: ""
-                                })
-                                setOpenAddDialog(true)
-                            }}><Plus className="h-5 w-5"/>{t('header.addButton')}</Button>
+                            <Button onClick={() => {setOpenAddDialog(true)}}><Plus className="h-5 w-5"/>{t('header.addButton')}</Button>
                         </div>
                     </div>
                 </div>

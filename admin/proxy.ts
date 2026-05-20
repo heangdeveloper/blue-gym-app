@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { cookies } from 'next/headers'
 
 // 1. Specify protected and public routes
 const protectedRoutes = ['/dashboard']
@@ -12,7 +13,8 @@ export async function proxy(request: NextRequest) {
     const isPublicRoute = publicRoutes.includes(path)
 
     // 3. Decrypt the token from the cookie
-    const token = request.cookies.get('auth_token')?.value
+    const cookieStore = await cookies()
+    const token = cookieStore.get('apiToken')?.value
 
     // 4. Redirect to /login if the user is not authenticated
     if (isProtectedRoute && !token) {
@@ -28,5 +30,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ["/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)"],
+    matcher: ["/login", "/dashboard/:path*"],
 };

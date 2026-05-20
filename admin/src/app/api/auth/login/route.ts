@@ -16,25 +16,25 @@ export async function POST(request: Request) {
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
-            'Cookie': setCookie || '', // Forward the CSRF cookie
+            'Cookie': setCookie || '',
         },
         body: JSON.stringify(credentials),
     });
 
     const data = await loginRes.json();
 
-    if (!loginRes.ok) return NextResponse.json({ success: false, message: data.message, user: data.user });
+    if (!loginRes.ok) return NextResponse.json({ success: false, message: data.message, user: data.user, token: data.token });
 
-    const response = NextResponse.json({ success: true, user: data.user});
+    const response = NextResponse.json({ success: true, user: data.user, token: data.token});
 
     response.cookies.set({
-        name: 'auth_token',
-        value: data.auth_token,
-        httpOnly: true, // Prevents JS access for security
+        name: 'apiToken',
+        value: data.token,
+        httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         path: '/',
-        maxAge: 60 * 60 * 24 * 7, // 1 week
+        maxAge: 60 * 60 * 24 * 7,
     });
 
     return response;

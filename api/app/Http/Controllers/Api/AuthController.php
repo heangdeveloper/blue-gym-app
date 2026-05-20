@@ -45,13 +45,10 @@ class AuthController extends Controller
             ]);
         }
 
-        $token = $user->createToken(
-            'api-token', ['*'], now()->plus(weeks: 1)
-        )->plainTextToken;
+        $token = $user->createToken("web-client")->plainTextToken;
 
         return response()->json([
-            'auth_token' => $token,
-            'token_type' => 'Bearer',
+            'token' => $token,
             'user' => $user,
         ]);
     }

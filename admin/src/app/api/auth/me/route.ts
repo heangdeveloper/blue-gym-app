@@ -1,10 +1,9 @@
-import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { type NextRequest } from 'next/server'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
     const API_URL = process.env.NEXT_PUBLIC_API_URL;
-    const cookieStore = await cookies();
-    const token = cookieStore.get('auth_token')?.value;
+    const token = request.cookies.get('apiToken')
 
     const res = await fetch(`${API_URL}/api/me`, {
         headers: {
@@ -12,10 +11,7 @@ export async function GET() {
             'Accept': 'application/json',
         },
     });
+    const data = await res.json()
 
-    if (!res.ok) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    return NextResponse.next(); 
+    return Response.json({ data })
 }

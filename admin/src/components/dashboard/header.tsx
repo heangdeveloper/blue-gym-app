@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button"
 import {
     Avatar,
@@ -30,8 +29,8 @@ export default async function Header() {
         "use server";
         const cookieStore = await cookies();
         cookieStore.set("locale", locale);
-    
     }
+
     return (
         <>
             <div className="sticky top-0 z-30">

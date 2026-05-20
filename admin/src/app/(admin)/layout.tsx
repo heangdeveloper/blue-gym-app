@@ -1,6 +1,5 @@
-import React, { Suspense} from "react";
+import React from "react";
 import {
-    SidebarInset,
     SidebarProvider,
 } from "@/components/ui/sidebar"
 import AppSidebar from "@/components/dashboard/AppSidebar";
@@ -11,11 +10,9 @@ import { redirect } from 'next/navigation';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
     const cookieStore = await cookies();
-    const authToken = cookieStore.get('auth_token')?.value;
-    if (!authToken) {
-        redirect('/login');
-    }
-
+    const authToken = cookieStore.get('apiToken')?.value;
+    if (!authToken) redirect('/login');
+    
     return (
         <div className="min-h-screen">
             <div className="flex min-h-screen">

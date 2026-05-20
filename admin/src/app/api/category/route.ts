@@ -4,23 +4,14 @@ import '@/../envConfig';
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export async function GET() {
-    try {
-        const res = await fetch(`${API_URL}/api/categories`, {
-            headers: {
-                Accept: "application/json",
-            },
-            cache: "no-store",
-        });
-
-        const data = await res.json();
-
-        return NextResponse.json(data);
-    } catch (error) {
-        return NextResponse.json(
-            { message: "Failed to fetch categories" },
-            { status: 500 }
-        );
-    }
+    const res = await fetch(`${API_URL}/api/categories`, {
+        headers: {
+            'Accept': 'application/json'        
+        }
+    });
+    const data = await res.json()
+ 
+    return Response.json({ data })
 }
 
 export async function POST(request: Request) {
